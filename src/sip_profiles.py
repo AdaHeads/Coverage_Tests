@@ -8,6 +8,11 @@ class customer2 :
     password = '1234'
     sipport  = "5072"
 
+class customer3:
+    username = '1013'
+    password = '1234'
+    sipport  = "5073"
+
 class agent1 :
     username = '1001'
     password = '1234'

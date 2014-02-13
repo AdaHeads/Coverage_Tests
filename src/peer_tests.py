@@ -2,7 +2,7 @@ import logging
 import config
 from call_flow_communication import callFlowServer
 
-from sip_profiles import customer1
+from sip_profiles import customer3
 from sip_utils import SipAccount, SipAgent
 
 try:
@@ -18,13 +18,19 @@ class PeerTests(unittest.TestCase):
     # Tests whether a call-flow server responds correctly to peer registrations
     # 
     def testRegisterAgent(self):
-        sipagent = SipAgent(account=SipAccount(username=customer1.username, password=customer1.password, sip_port=customer1.sipport))
+        sipagent = SipAgent(account=SipAccount(username=customer3.username, password=customer3.password, sip_port=customer3.sipport))
     
-        assert not self.cfs.peerList().locatePeer(customer1.username)['registered']
+        peer = self.cfs.peerList().locatePeer(customer3.username)
+        if peer ['registered']:
+            self.fail("Peer seems to be already registered: " + peer.toString())
         
         sipagent.Connect()
-        assert self.cfs.peerList().locatePeer(customer1.username)['registered']
+        peer = self.cfs.peerList().locatePeer(customer3.username)
+        if not peer ['registered']:
+            self.fail("Peer does not seem to be registered: " + peer.toString())
         
         sipagent.QuitProcess()
-        assert not self.cfs.peerList().locatePeer(customer1.username)['registered']
+        peer = self.cfs.peerList().locatePeer(customer3.username)
+        if peer ['registered']:
+            self.fail("Peer is still registered: " + peer.toString())
     

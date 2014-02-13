@@ -22,7 +22,7 @@ from sip_utils import SipAgent, SipAccount
 from call_flow_communication import callFlowServer
 
 # Sip accounts
-from sip_profiles import agent2, customer1 
+from sip_profiles import agent2, customer1, customer2 
 
 h = httplib2.Http(".cache")
 logging.basicConfig(level=logging.INFO)
@@ -39,19 +39,21 @@ class BasicStuff(unittest.TestCase):
     # Makes a call and then asserts that there is a
     # call in the call queue.
     def test_Call_Presence (self): 
-        customer_agent = SipAgent(account=SipAccount(username=customer1.username, password=customer1.password, sip_port=customer1.sipport))
-        customer_agent.Connect(
-                               )
+        customer_agent = SipAgent(account=SipAccount(username=customer2.username, password=customer2.password, sip_port=customer2.sipport))
+        customer_agent.Connect()
+        
         reception      = "12340001"
         
         # Register the customers' sip client.
         customer_agent.Dial (reception)
+        time.sleep(0.5) # Let the call "settle"
 
         # Check that there is a call in the queue.
         assert not self.cfs.CallList().Empty()
         
-        customer_agent.HangupAllCalls()
+        customer_agent.QuitProcess()
         # Check that the call is now absent from the call list.
+
         current_call_list = self.cfs.CallList();
         if not current_call_list.Empty():
             self.fail("Found a non-empty call list: " + current_call_list.toString())
@@ -59,7 +61,7 @@ class BasicStuff(unittest.TestCase):
     # Makes a call and then tries to pick it up from the server.
     #
     def test_Unspecified_Call_Pickup (self):
-        reception = "12340001"
+        reception = "12340002"
         
         # Start the event stack task.
         elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=config.authtoken)

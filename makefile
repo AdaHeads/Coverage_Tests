@@ -1,2 +1,2 @@
 tests:
-	@py.test --junitxml results.xml src/agent.py
+	@py.test --junitxml results.xml src/*tests.py
