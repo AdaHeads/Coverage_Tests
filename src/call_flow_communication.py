@@ -1,9 +1,13 @@
 import httplib2
 import logging
+import json
 from peer_utils import PeerList
 from call_utils import CallList
 
 class Server_Unavailable(Exception):
+    pass
+
+class Server_404(Exception):
     pass
 
 class callFlowServer:
@@ -31,20 +35,24 @@ class callFlowServer:
 
     def Request (self, path, method="GET", encoded_params=""):
         try:
-            uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken + encoded_params
+            uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
             
-            resp, content = self.http.request(uri_path , method, headers={'Origin' : self.uri})
+            headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri}, body=encoded_params)
         except:
             logging.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
+        if headers['status'] == '404':
+            raise Server_404 (method + " " + path)
         
-        return resp, content
+        return headers, body
 
     def PickupCall (self, call_id=None):
         if call_id == None:
-            return self.Request(self.protocol.callPickup, "POST")
+            headers, body = self.Request(self.protocol.callPickup, "POST")
         else:
-            return self.Request(self.protocol.callPickup, "POST", "&call_id="+call_id)
+            headers, body = self.Request(self.protocol.callPickup, "POST", params="call_id="+call_id)
+            
+        return json.loads (body)
 
     def CallList (self):
         headers, body = self.Request(self.protocol.callList)
