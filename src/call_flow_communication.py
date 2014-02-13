@@ -1,6 +1,7 @@
 import httplib2
 import logging
 from peer_utils import PeerList
+from call_utils import CallList
 
 class Server_Unavailable(Exception):
     pass
@@ -45,14 +46,18 @@ class callFlowServer:
         else:
             return self.Request(self.protocol.callPickup, "POST", "&call_id="+call_id)
 
+    def CallList (self):
+        headers, body = self.Request(self.protocol.callList)
+        if headers['status'] != '200':
+            logging.error ("Expected 200 here, got: " + headers['status'])
+            raise Server_Unavailable (path)
+        return CallList().fromJSON(body)
+
     def peerList(self):
         path = self.uri+ self.protocol.peerList + self.protocol.tokenParam + self.authtoken
         headers, body = self.Request(path)
-        if headers['status'] == '401':
-            logging.error ("Invalid token detected! body: " + body)
-            raise Server_Unavailable (path)
 
-        elif headers['status'] != '200':
+        if headers['status'] != '200':
             logging.error ("Expected 200 here, got: " + headers['status'])
             raise Server_Unavailable (path)
 
