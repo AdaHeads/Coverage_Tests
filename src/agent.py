@@ -1,16 +1,12 @@
-from websocket import create_connection
 import logging
 import websocket
 import os, sys
 import json
-import threading
 import thread
 import time
 import httplib2
 import pprint
 import config
-from sip_utils import SipAgent, SipAccount
-from call_flow_communication import callFlowServer
 
 try:
     import unittest2 as unittest
@@ -20,82 +16,16 @@ except ImportError:
 from pprint import pformat
 from subprocess import Popen, PIPE
 
+# Local classes.
+from event_stack import EventListenerThread
+from sip_utils import SipAgent, SipAccount
+from call_flow_communication import callFlowServer
+
+# Sip accounts
+from sip_profiles import agent2, customer1 
+
 h = httplib2.Http(".cache")
 logging.basicConfig(level=logging.INFO)
-
-class customer1 :
-    username = '1011'
-    password = '1234'
-    sipport  = "5081"
-
-class customer2 :
-    username = '1012'
-    password = '1234'
-    sipport  = "5072"
-
-class agent1 :
-    username = '1001'
-    password = '1234'
-    sipport  = "5071"
-
-class agent2 :
-    username = '1002'
-    password = '1234'
-    sipport  = "5062"
-    
-class WebSocketThread(threading.Thread):
-    ws = None
-    messageStack = []
-    #messageStack = dict()
-    
-    def stack_contains (self, event_type, call_id=None):
-        for item in self.messageStack:
-            if item['event'] == event_type:
-                if call_id == None: 
-                    return True
-                elif item['call']['id'] == call_id:
-                    return True
-        return False
-
-    def dump_stack(self):
-        logging.info (pformat(self.messageStack))
-    
-    def on_error(self, ws, error):
-        logging.error (error)
-
-    def on_open (self, ws):
-        logging.info ("Opened websocket")
-
-    def on_close(self, ws):
-        logging.info ("Closed websocket")
-        
-    def on_message(self, ws, message):
-        #x.update({3:4})
-        self.messageStack.append(json.loads(message)['notification'])
-        logging.info (message)
-    
-    def connect (self):
-        try:
-            self.ws = websocket.WebSocketApp ("ws://localhost:4242/notifications?token="+config.authtoken,
-                                              on_message = self.on_message,
-                                              on_error = self.on_error,
-                                              on_close = self.on_close)
-            self.ws.on_open = self.on_open
-        except:
-            logging.critical("Websocket connect failed!")
-    
-    def run(self):
-        try:
-            logging.info ("Starting websocket")
-            self.connect()
-            self.ws.run_forever()
-        except:
-            logging.critical("Run in thread failed!")
-            
-    def stop(self):
-        logging.info ("stopping websocket")
-        self.ws.close();
-
 
 class Event_Tests(unittest.TestCase):
     
@@ -118,13 +48,11 @@ class BasicStuff(unittest.TestCase):
         customer_agent.Dial (reception)
 
         # Check that there is a call in the queue.
-        resp, content = h.request("http://localhost:4242/call/queue?token="+authtoken, "GET")
-        
-        assert resp['status'] == '200'
-        call_list = json.loads(content)
-        if len(call_list['calls']) != 0:
-            logging.error("Empty call list found:" + json.dumps(call_list))
+        assert not cfs.CallList().Empty()        
         customer_agent.stdin.write("h\n"); # Hangup
+        
+        # Check that the call is now absent from the call list.
+        assert cfs.CallList().Empty()
         customer_agent.stdin.write("q\n"); # Quit
 
     # Makes a call and then tries to pick it up from the server.
@@ -190,6 +118,7 @@ class BasicStuff(unittest.TestCase):
             wst.stop()
 
 
+# Below is just testing code. Everything interesting (and automatable) will be located in the TestCase classes. 
 if __name__ == "__main__":
     
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=config.authtoken)
@@ -200,8 +129,8 @@ if __name__ == "__main__":
         logging.fatal("Could not validate token")
         sys.exit(1)
 
-    wst = WebSocketThread()
-    wst.start()
+    elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=config.authtoken)
+    elt.start();
     
     #logging.info ("Starting agent 2")
     #p1 = Popen(["../bin/basic_agent", agent2.username, agent2.password, config.pbx, agent2.sipport], stdout=PIPE, stderr=PIPE)
@@ -218,6 +147,7 @@ if __name__ == "__main__":
     logging.info ("Registering customer 1")
     customer_agent = SipAgent(account=SipAccount(username=customer1.username, password=customer1.password, sip_port=customer1.sipport))
     customer_agent.Connect()
+    print "call list empty: " + str (cfs.CallList().Empty())
     
     # Make a call into the reception
     logging.info ("Spawing a single call to the reception at " + reception)
@@ -225,6 +155,7 @@ if __name__ == "__main__":
     
     time.sleep(2)
     logging.info ("Trying to pickup call")
+    print "call list empty: " + str (cfs.CallList().Empty())
     
     resp, content = cfs.PickupCall()
 
@@ -244,6 +175,6 @@ if __name__ == "__main__":
     #TODO assert that the call list is empty at this point.
         
     #wst.dump_stack()
-    logging.info ("Has call_offer:" + str (wst.stack_contains ("call_offer")));
-    wst.stop()
+    logging.info ("Has call_offer:" + str (elt.stack_contains ("call_offer")));
+    elt.stop()
 
