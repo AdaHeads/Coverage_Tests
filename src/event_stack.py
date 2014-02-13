@@ -1,7 +1,9 @@
 import websocket
 import logging
+import json
 import config
 import threading
+from pprint import pformat
 
 class EventListenerThread(threading.Thread):
     
@@ -26,7 +28,7 @@ class EventListenerThread(threading.Thread):
         return False
 
     def dump_stack(self):
-        logging.info (pformat(self.messageStack))
+        return pformat(self.messageStack)
     
     def on_error(self, ws, error):
         logging.error (error)
