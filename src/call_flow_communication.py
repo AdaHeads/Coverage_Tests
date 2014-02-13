@@ -54,7 +54,7 @@ class callFlowServer:
         return CallList().fromJSON(body)
 
     def peerList(self):
-        path = self.uri+ self.protocol.peerList + self.protocol.tokenParam + self.authtoken
+        path = self.protocol.peerList + self.protocol.tokenParam + self.authtoken
         headers, body = self.Request(path)
 
         if headers['status'] != '200':

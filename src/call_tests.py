@@ -34,7 +34,7 @@ class Event_Tests(unittest.TestCase):
 
 class BasicStuff(unittest.TestCase):
     
-    cfs            = callFlowServer(uri=config.call_flow_server_uri, authtoken=config.authtoken)
+    cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=config.authtoken)
     
     # Makes a call and then asserts that there is a
     # call in the call queue.
@@ -48,74 +48,47 @@ class BasicStuff(unittest.TestCase):
         customer_agent.Dial (reception)
 
         # Check that there is a call in the queue.
-        assert not cfs.CallList().Empty()        
-        customer_agent.stdin.write("h\n"); # Hangup
+        assert not self.cfs.CallList().Empty()
         
+        customer_agent.HangupAllCalls()
         # Check that the call is now absent from the call list.
-        assert cfs.CallList().Empty()
-        customer_agent.stdin.write("q\n"); # Quit
+        current_call_list = self.cfs.CallList();
+        if not current_call_list.Empty():
+            self.fail("Found a non-empty call list: " + current_call_list.toString())
 
     # Makes a call and then tries to pick it up from the server.
     #
     def test_Unspecified_Call_Pickup (self):
-        reception = "12340001@"+config.pbx
+        reception = "12340001"
         
         # Start the event stack task.
-        wst = WebSocketThread()
-        wst.start()
+        elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=config.authtoken)
+        elt.start();
         
-        # Register the reeptionists' sip client.
-        logging.info ("Registering receptionist 1")
         try:
-            receptionist_agent = Popen(["bin/basic_agent", agent2.username, agent2.password, config.pbx, agent2.sipport], stdin=PIPE, stdout=PIPE)
-            got_reply = False
-            while not got_reply:
-                line = receptionist_agent.stdout.readline()
-                if "+READY" in line:
-                    got_reply = True
-                    logging.info("Receptionist is ready.");
-                elif "-ERROR" in line:
-                    logging.fatal("SIP Agent returned "+line)
-                    self.fail("SIP Agent returned "+line)
-    
+            # Register the reeptionists' sip client.
+            logging.info ("Registering receptionist 2")
+            receptionist_agent = SipAgent(account=SipAccount(username=agent2.username, password=agent2.password, sip_port=agent2.sipport))
+        
+            receptionist_agent.Connect()
+        
             # Register the customers' sip client.
             logging.info ("Registering customer 1")
-            customer_agent = Popen(["bin/basic_agent", customer1.username, customer1.password, config.pbx, customer1.sipport], stdin=PIPE, stdout=PIPE)
-            # Wait for registration.
-            got_reply = False
-            while not got_reply:
-                line = customer_agent.stdout.readline()
-                if "+READY" in line:
-                    got_reply = True
-                    logging.info("Customer is ready.");
-                elif "-ERROR" in line:
-                    logging.fatal("SIP Agent returned "+line)
-                    self.fail("SIP Agent returned "+line)
-                    
-            customer_agent.stdin.write("dsip:"+reception+"\n")
-    
-            got_reply = False
-            while not got_reply:
-                line = customer_agent.stdout.readline()
-                if "+OK" in line:
-                    got_reply = True
-                    logging.info("Customer is ready.");
-                elif "-ERROR" in line:
-                    logging.fatal("SIP Agent returned "+line)
-                    self.fail("SIP Agent returned "+line)
-            
+            customer_agent = SipAgent(account=SipAccount(username=customer1.username, password=customer1.password, sip_port=customer1.sipport))
+            customer_agent.Connect()
+                        
+            customer_agent.Dial(reception)
+                
             #TODO: Check that the event stack contains a call offer and a call pickup event. 
-            assert wst.stack_contains("call_offer")
-            assert wst.stack_contains("call_pickup")
+            assert elt.stack_contains("call_offer")
+            assert elt.stack_contains("call_pickup")
         
-            customer_agent.stdin.write("h\n"); # Hangup
-            customer_agent.stdin.write("q\n"); # Quit        
-            receptionist_agent.stdin.write("h\n"); # Hangup
-            receptionist_agent.stdin.write("q\n"); # Quit
-            assert wst.stack_contains("call_hangup")
-            wst.stop()
+            customer_agent.QuitProcess;  
+            receptionist_agent.QuitProcess;
+            assert elt.stack_contains("call_hangup")
+            elt.stop()
         except:
-            wst.stop()
+            elt.stop()
 
 
 # Below is just testing code. Everything interesting (and automatable) will be located in the TestCase classes. 

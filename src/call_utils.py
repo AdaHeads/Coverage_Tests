@@ -14,7 +14,9 @@ class CallList ():
     def NumberOfCalls(self):
         if 'calls' in self.__JSONlist:
             return len(self.__JSONlist['calls'])
-        
+    
+    def toString(self):
+        return json.dumps(self.__JSONlist)
         
     def locateCall (self, call_id):
         foundCall = None
