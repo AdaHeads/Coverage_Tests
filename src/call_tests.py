@@ -80,10 +80,13 @@ class BasicStuff(unittest.TestCase):
             customer_agent.Connect()
                         
             customer_agent.Dial(reception)
-                
-            #TODO: Check that the event stack contains a call offer and a call pickup event. 
-            assert elt.stack_contains("call_offer")
-            assert elt.stack_contains("call_pickup")
+            time.sleep(0.5)
+            
+            call = self.cfs.PickupCall()
+             
+            if not elt.stack_contains(event_type="call_offer"):
+                self.fail (elt.dump_stack())
+            assert elt.stack_contains(event_type="call_pickup")
         
             customer_agent.QuitProcess;  
             receptionist_agent.QuitProcess;
@@ -91,14 +94,50 @@ class BasicStuff(unittest.TestCase):
             elt.stop()
         except:
             elt.stop()
+            raise
 
+
+    # Makes a call and then asserts that there is a
+    # call in the call queue.
+    def test_Call_Park_And_Pickup (self): 
+        reception = "12340002"
+        
+        # Start the event stack task.
+        elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=config.authtoken)
+        elt.start();
+        
+        try:
+            # Register the reeptionists' sip client.
+            logging.info ("Registering receptionist 2")
+            receptionist_agent = SipAgent(account=SipAccount(username=agent2.username, password=agent2.password, sip_port=agent2.sipport))
+        
+            receptionist_agent.Connect()
+        
+            # Register the customers' sip client.
+            logging.info ("Registering customer 1")
+            customer_agent = SipAgent(account=SipAccount(username=customer1.username, password=customer1.password, sip_port=customer1.sipport))
+            customer_agent.Connect()
+                        
+            customer_agent.Dial(reception)
+                
+            assert elt.stack_contains("call_offer")
+            assert elt.stack_contains("call_pickup")
+        
+            self.cfs.ParkCall ()
+            
+            assert elt.stack_contains("call_park")
+            customer_agent.QuitProcess;  
+            receptionist_agent.QuitProcess;
+            assert elt.stack_contains("call_hangup")
+            elt.stop()
+        except:
+            elt.stop()
 
 # Below is just testing code. Everything interesting (and automatable) will be located in the TestCase classes. 
 if __name__ == "__main__":
     
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=config.authtoken)
     reception = "12340001"
-
     
     if not cfs.TokenValid():
         logging.fatal("Could not validate token")
@@ -132,9 +171,9 @@ if __name__ == "__main__":
     logging.info ("Trying to pickup call")
     print "call list empty: " + str (cfs.CallList().Empty())
     
-    resp, content = cfs.PickupCall()
+    call = cfs.PickupCall()
 
-    logging.info ("Got call: " + content)
+    logging.info (call)
     #stdoutdata, stderrdata = p2.communicate(input=None)
     #print (stdoutdata)
     #print (stderrdata)
@@ -151,5 +190,6 @@ if __name__ == "__main__":
         
     #wst.dump_stack()
     logging.info ("Has call_offer:" + str (elt.stack_contains ("call_offer")));
+    logging.info (elt.dump_stack());
     elt.stop()
 
