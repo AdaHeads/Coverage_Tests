@@ -42,7 +42,6 @@ class EventListenerThread(threading.Thread):
     def on_message(self, ws, message):
         #x.update({3:4})
         self.messageStack.append(json.loads(message)['notification'])
-        logging.info (message)
     
     def connect (self):
         full_uri= self.ws_uri +  "?token=" + self.authtoken
