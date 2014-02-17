@@ -65,7 +65,7 @@ class BasicStuff(unittest.TestCase):
         reception = "12340001"
         
         # Start the event stack task.
-        elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=agent1100.authtoken)
+        elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
         elt.start();
         
         try:
@@ -117,7 +117,7 @@ class BasicStuff(unittest.TestCase):
         reception = "12340002"
         
         # Start the event stack task.
-        elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=agent1100.authtoken)
+        elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
         elt.start();
         
         try:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         logging.fatal("Could not validate token")
         sys.exit(1)
 
-    elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=agent1100.authtoken)
+    elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
     elt.start();
     
     #logging.info ("Starting agent 2")

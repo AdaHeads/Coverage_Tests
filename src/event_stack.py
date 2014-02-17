@@ -70,5 +70,5 @@ class EventListenerThread(threading.Thread):
         
 if __name__ == "__main__":
 
-    elt = EventListenerThread(uri="ws://localhost:4242/notifications", token=config.authtoken)
+    elt = EventListenerThread(uri=config.call_flow_events, token=config.authtoken)
     elt.start();        
