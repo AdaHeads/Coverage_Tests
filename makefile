@@ -1,6 +1,6 @@
 AUTH_CACHE_STORAGE=/dev/shm/auth/
 
-tests: install_dummy_tokens bin/basic_agent
+tests: install_dummy_tokens bin/basic_agent src/config.py
 	@py.test --junitxml results.xml src/*tests.py
 
 install_dummy_tokens:
@@ -12,3 +12,7 @@ bin/basic_agent:
 	(cd support_tools && make basic_agent)
 	-mkdir bin
 	mv support_tools/basic_agent bin/
+
+src/config.py: src/config.py.dist
+	cp -np src/config.py.dist src/config.py
+
