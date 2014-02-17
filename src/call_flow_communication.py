@@ -1,4 +1,5 @@
 import httplib2
+from urllib import urlencode
 import logging
 import json
 from peer_utils import PeerList
@@ -15,6 +16,7 @@ class callFlowServer:
     class protocol:
         callList   = "/call/list"
         callQueue  = "/call/queue"
+        callPark   = "/call/park"
         callPickup = "/call/pickup"
         peerList   = "/debug/peer/list"
         tokenParam = "?token=" 
@@ -33,11 +35,17 @@ class callFlowServer:
         headers, body = self.Request(path)
         return headers['status'] == '200'
 
-    def Request (self, path, method="GET", encoded_params=""):
+    def Request (self, path, method="GET", params={}):
+        logging.info(method + " " + path + " " + urlencode(params))
         try:
             uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
             
-            headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri}, body=encoded_params)
+            if method == 'POST':
+                headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri,
+                                                                              'Content-Type' : 'application/x-www-form-urlencoded'}, body=urlencode(params))
+            else:
+                headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri})
+                
         except:
             logging.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
@@ -50,7 +58,15 @@ class callFlowServer:
         if call_id == None:
             headers, body = self.Request(self.protocol.callPickup, "POST")
         else:
-            headers, body = self.Request(self.protocol.callPickup, "POST", params="call_id="+call_id)
+            headers, body = self.Request(self.protocol.callPickup, "POST", params={'call_id' : call_id})
+            
+        return json.loads (body)
+
+    def ParkCall (self, call_id=None):
+        if call_id == None:
+            headers, body = self.Request(self.protocol.callPark, "POST")
+        else:
+            headers, body = self.Request(self.protocol.callPark, "POST", params={'call_id' : call_id})
             
         return json.loads (body)
 
