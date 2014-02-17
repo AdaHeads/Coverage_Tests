@@ -26,6 +26,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+results.xml
 
 # Translations
 *.mo
@@ -34,6 +35,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Generated support tools:
 support_tools
-results.xml
 include/
+
+# Configuration files:
+src/config.py
+
