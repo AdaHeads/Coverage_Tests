@@ -62,7 +62,8 @@ class BasicStuff(unittest.TestCase):
     # Makes a call and then tries to pick it up from the server.
     #
     def test_Unspecified_Call_Pickup (self):
-        reception = "12340001"
+        reception_id = 1
+        reception = "1234000" + str(reception_id)
         
         # Start the event stack task.
         elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
@@ -92,15 +93,19 @@ class BasicStuff(unittest.TestCase):
             
             time.sleep(10.0) # Wait for the call to connect...            
              
-            if not elt.stack_contains(event_type="call_offer"):
-                self.fail (elt.dump_stack())
-            assert elt.stack_contains(event_type="call_pickup")
-        
             customer_agent.HangupAllCalls  
             customer_agent.QuitProcess
             receptionist_agent.HangupAllCalls
             receptionist_agent.QuitProcess
-            time.sleep (1.5)            
+            
+            # Tests
+            if not elt.stack_contains(event_type="call_offer", call_id=call['id']):
+                self.fail (elt.dump_stack())
+            elif not elt.stack_contains(event_type="call_pickup", call_id=call['id']):
+                self.fail (elt.dump_stack())
+            elif call['reception_id'] != reception_id: 
+                self.fail ("Invalid reception ID in allocated call.")
+            
             #TODO Check for hangup event.
 #            if not elt.stack_contains("call_hangup"):
 #                self.fail("call_hangup event not found in " + elt.dump_stack())
@@ -113,8 +118,9 @@ class BasicStuff(unittest.TestCase):
 
     # Makes a call and then asserts that there is a
     # call in the call queue.
-    def test_Call_Park_And_Pickup (self): 
-        reception = "12340002"
+    def test_Call_Park_And_Pickup (self):
+        reception_id = 2 
+        reception = "1234000" + str (reception_id)
         
         # Start the event stack task.
         elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
@@ -128,7 +134,7 @@ class BasicStuff(unittest.TestCase):
             receptionist_agent.Connect()
         
             # Register the customers' sip client.
-            logging.info ("Registering customer agent " + agent1009.username)
+            logging.info ("Registering customer agent " + agent1109.username)
             customer_agent = SipAgent(account=SipAccount(username=agent1109.username, password=agent1109.password, sip_port=agent1109.sipport))
             customer_agent.Connect()
                         
@@ -136,15 +142,36 @@ class BasicStuff(unittest.TestCase):
             logging.info ("Spawing a single call to the reception at " + reception)
             customer_agent.Dial(reception)
 
-            self.cfs.ParkCall ()
+            # Let the call settle.
+            time.sleep(0.5)
             
-            assert elt.stack_contains("call_park")
+            call = self.cfs.PickupCall()
+            logging.info ("Got call " + str (call['id']))
+            
+            time.sleep(5.0) # Wait for the call to connect...
+            
+            self.cfs.ParkCall (call_id=call['id'])
+            time.sleep(1.0)
+            self.cfs.PickupCall (call_id=call['id'])
+            time.sleep(5.0) # Wait for the call to connect...
+            
+            customer_agent.HangupAllCalls  
+            receptionist_agent.HangupAllCalls
             customer_agent.QuitProcess;  
             receptionist_agent.QuitProcess;
-            assert elt.stack_contains("call_hangup")
+
+            time.sleep(2.0)
+            # Tests
+            if not elt.stack_contains(event_type="call_offer", call_id=call['id']):
+                self.fail (elt.dump_stack())
+            elif not elt.stack_contains(event_type="call_pickup", call_id=call['id']):
+                self.fail (elt.dump_stack())
+            elif call['reception_id'] != reception_id: 
+                self.fail ("Invalid reception ID in allocated call.")
             elt.stop()
         except:
             elt.stop()
+            raise
 
 # Below is just testing code. Everything interesting (and automatable) will be located in the TestCase classes. 
 if __name__ == "__main__":
