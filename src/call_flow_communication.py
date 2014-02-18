@@ -15,7 +15,7 @@ class Server_401(Exception):
     pass
 
 class callFlowServer:
-    
+
     class protocol:
         callHangup = "/call/hangup"
         callList   = "/call/list"
@@ -23,9 +23,9 @@ class callFlowServer:
         callPark   = "/call/park"
         callPickup = "/call/pickup"
         peerList   = "/debug/peer/list"
-        tokenParam = "?token=" 
+        tokenParam = "?token="
 
-    uri       = None 
+    uri       = None
     http      = httplib2.Http(".cache")
     authtoken = None
 
@@ -42,13 +42,13 @@ class callFlowServer:
         logging.info(method + " " + path + " " + urlencode(params))
         try:
             uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
-            
+
             if method == 'POST':
                 headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri,
                                                                               'Content-Type' : 'application/x-www-form-urlencoded'}, body=urlencode(params))
             else:
                 headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri})
-                
+
         except:
             logging.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
@@ -56,7 +56,7 @@ class callFlowServer:
             raise Server_404 (method + " " + path + " Response:" + body)
         elif headers['status'] == '401':
             raise Server_401 (method + " " + path + " Response:" + body)
-        
+
         return headers, body
 
     def PickupCall (self, call_id=None):
@@ -64,16 +64,16 @@ class callFlowServer:
             headers, body = self.Request(self.protocol.callPickup, "POST")
         else:
             headers, body = self.Request(self.protocol.callPickup, "POST", params={'call_id' : call_id})
-            
+
         return json.loads (body)
 
     def HangupCall (self, call_id):
         headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
-            
+
         return json.loads (body)
 
     def HangupAllCalls (self):
-        
+
         for call in self.CallList().Calls():
             self.HangupCall(call['id'])
 
@@ -82,7 +82,7 @@ class callFlowServer:
             headers, body = self.Request(self.protocol.callPark, "POST")
         else:
             headers, body = self.Request(self.protocol.callPark, "POST", params={'call_id' : call_id})
-            
+
         return json.loads (body)
 
     def CallList (self):
@@ -101,4 +101,4 @@ class callFlowServer:
             raise Server_Unavailable (path)
 
         return PeerList().fromJSON(body)
-    
+

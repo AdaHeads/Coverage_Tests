@@ -11,15 +11,15 @@ except ImportError:
     import unittest
 
 class TechnicalStuff(unittest.TestCase):
-    
+
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
-    
+
     def test_token_valid(self):
         assert self.cfs.TokenValid()
 
     # Make sure that the cors headers are present
     def test_CORS_present(self):
-        headers, body = self.cfs.Request(self.cfs.protocol.peerList) 
+        headers, body = self.cfs.Request(self.cfs.protocol.peerList)
         assert 'access-control-allow-origin' in headers or 'Access-Control-Allow-Origin' in headers
 
     def test_404_OK (self):

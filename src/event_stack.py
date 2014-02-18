@@ -68,7 +68,7 @@ class EventListenerThread(threading.Thread):
     def Get_Latest_Event (self, Event_Type, Call_ID=None, Destination=None):
         if self.messageStack == None:
             return None
-        
+
         for item in self.messageStack.reverse():
             if item['event'] == Event_Type:
                 if Call_ID == None:
