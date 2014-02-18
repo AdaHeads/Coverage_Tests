@@ -13,7 +13,7 @@ from sip_profiles import agent1102 as Caller
 from sip_profiles import agent1105 as Receptionist 
 
 from event_stack import EventListenerThread
-
+from call_flow_communication import callFlowServer
 from database_reception import Database_Reception
 
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 class Sequence_Diagram(unittest.TestCase):
     Caller_Agent       = SipAgent (account=SipAccount(username=Caller.username,       password=Caller.password,       sip_port=Caller.sipport))
     Receptionist_Agent = SipAgent (account=SipAccount(username=Receptionist.username, password=Receptionist.password, sip_port=Receptionist.sipport))
-    Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
+    Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=Receptionist.authtoken)
     
     Reception = config.queued_reception
         
