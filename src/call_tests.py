@@ -182,7 +182,7 @@ class BasicStuff(unittest.TestCase):
 if __name__ == "__main__":
     
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
-    reception = "12340001"
+    reception = config.queued_reception
     
     if not cfs.TokenValid():
         logging.fatal("Could not validate token")
