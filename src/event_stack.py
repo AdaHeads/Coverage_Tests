@@ -65,20 +65,9 @@ class EventListenerThread(threading.Thread):
                         return item['event']
         return False
 
-    def Get_Latest_Event (self, Event_Type=None, Call_ID=None, Destination=None):
+    def Get_Latest_Event (self, Event_Type, Call_ID=None, Destination=None):
         for Item in self.messageStack.reverse():
-            if Event_Type == None:
-                if Call_ID == None:
-                    if Destination == None:
-                        return Item
-                    elif Item['call']['destination'] == Destination:
-                        return Item
-                elif Item['call']['id'] == Call_ID:
-                    if Destination == None:
-                        return Item
-                    elif Item['call']['destination'] == Destination:
-                        return Item
-            elif Item['event'] == Event_Type:
+            if Item['event'] == Event_Type:
                 if Call_ID == None:
                     if Destination == None:
                         return Item
