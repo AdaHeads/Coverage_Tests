@@ -24,7 +24,8 @@ class Sequence_Diagram(unittest.TestCase):
     Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=Receptionist.authtoken)
     
     Reception = config.queued_reception
-        
+    Call      = None
+    
     def Caller_Places_Call (self):
         logging.info("Connecting caller agent...")
         self.Caller_Agent.Connect ()
@@ -53,8 +54,12 @@ class Sequence_Diagram(unittest.TestCase):
         Data_On_Reception = Reception_Database.Single(Reception_ID)
         logging.info("Received information: " + str(Data_On_Reception))
         
-    def Receptionist_Offers_To_Answer_Call(self):
-        self.Call_Flow_Control.PickupCall()
+    def Receptionist_Offers_To_Answer_Call(self, Reception_ID):
+        self.Call = self.Call_Flow_Control.PickupCall()
+        if self.Call['destination'] != self.Reception_ID: 
+            self.fail ("Unexpected destination in allocated call.")
+        if self.Call['reception_id'] != Reception_ID: 
+            self.fail ("Unexpected reception ID in allocated call.")
         
     def test_Run (self):
         Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
@@ -72,7 +77,7 @@ class Sequence_Diagram(unittest.TestCase):
             Reception_ID = self.Call_Announced (Client)
             # Client-N shows call to receptionist-N
             self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
-            self.Receptionist_Offers_To_Answer_Call()
+            self.Receptionist_Offers_To_Answer_Call(Reception_ID=Reception_ID)
             
             Client.stop()            
         except:
