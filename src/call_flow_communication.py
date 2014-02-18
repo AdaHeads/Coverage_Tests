@@ -33,7 +33,6 @@ class callFlowServer:
         self.uri       = uri
         self.authtoken = authtoken
 
-
     def TokenValid(self):
         path = self.protocol.callList + self.protocol.tokenParam + self.authtoken
         headers, body = self.Request(path)
@@ -72,6 +71,11 @@ class callFlowServer:
         headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
             
         return json.loads (body)
+
+    def HangupAllCalls (self):
+        
+        for call in self.CallList().Calls():
+            self.HangupCall(call['id'])
 
     def ParkCall (self, call_id=None):
         if call_id == None:
