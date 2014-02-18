@@ -42,7 +42,7 @@ class BasicStuff(unittest.TestCase):
         customer_agent = SipAgent(account=SipAccount(username=agent1109.username, password=agent1109.password, sip_port=agent1109.sipport))
         customer_agent.Connect()
         
-        reception      = "12340001"
+        reception      = config.queued_reception
         
         # Register the customers' sip client.
         customer_agent.Dial (reception)
@@ -177,7 +177,7 @@ class BasicStuff(unittest.TestCase):
 if __name__ == "__main__":
     
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
-    reception = "12340001"
+    reception = config.queued_reception
     
     if not cfs.TokenValid():
         logging.fatal("Could not validate token")
