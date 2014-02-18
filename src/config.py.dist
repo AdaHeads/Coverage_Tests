@@ -1,5 +1,6 @@
 pbx                  = 'freeswitch1.adaheads.com'
 call_flow_server_uri = 'http://alice.adaheads.com:4242'
 call_flow_events     = 'ws://alice.adaheads.com:4242/notifications'
+reception_server_uri = 'http://alice.adaheads.com:4000'
 sip_binary_path      = "bin/basic_agent"
 queued_reception     = "12340001"
