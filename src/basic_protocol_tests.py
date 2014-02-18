@@ -1,18 +1,21 @@
 import config
 import pytest
-
+import logging
 from call_flow_communication import callFlowServer, Server_404
 
-from sip_profiles import agent1100
+from sip_profiles import agent1100 as AnyAgent
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
+logger = logging.getLogger("TechnicalStuff")
+logger.setLevel(config.loglevel)
+
 class TechnicalStuff(unittest.TestCase):
     
-    cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
+    cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=AnyAgent.authtoken)
     
     def test_token_valid(self):
         assert self.cfs.TokenValid()
