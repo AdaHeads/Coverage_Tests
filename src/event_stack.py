@@ -25,13 +25,19 @@ class EventListenerThread(threading.Thread):
         self.messageStack = []
         self.open = False
     
-    def stack_contains (self, event_type, call_id=None):
+    def stack_contains (self, event_type, call_id=None, destination=None):
         for item in self.messageStack:
             if item['event'] == event_type:
-                if call_id == None: 
-                    return True
+                if call_id == None:
+                    if destination == None: 
+                        return True
+                    elif item['call']['destination'] == destination:
+                        return True
                 elif item['call']['id'] == call_id:
-                    return True
+                    if destination == None: 
+                        return True
+                    elif item['call']['destination'] == destination:
+                        return True
         return False
 
     def WaitFor (self, event_type, call_id=None, timeout=10.0):
