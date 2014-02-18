@@ -53,7 +53,7 @@ class Sequence_Diagram(unittest.TestCase):
         Data_On_Reception = Reception_Database.Single(Reception_ID)
         logging.info("Received information: " + str(Data_On_Reception))
         
-    def Receptionist_Answers_Call(self):
+    def Receptionist_Offers_To_Answer_Call(self):
         self.Call_Flow_Control.PickupCall()
         
     def test_Run (self):
@@ -72,7 +72,7 @@ class Sequence_Diagram(unittest.TestCase):
             Reception_ID = self.Call_Announced (Client)
             # Client-N shows call to receptionist-N
             self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
-            self.Receptionist_Answers_Call()
+            self.Receptionist_Offers_To_Answer_Call()
             
             Client.stop()            
         except:
