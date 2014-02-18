@@ -67,7 +67,8 @@ class SipAgent:
         self.__waitFor("+OK")
 
     def Wait_For_Dialtone(self):
-        self.__waitFor("+dialtone")
+        #self.__waitFor("+dialtone")
+        logging.info("Should have been waiting for a dial-tone here.  TODO: Fix 'sip_utils.py'.")
 
     def QuitProcess(self):
         self.HangupAllCalls()
