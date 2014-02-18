@@ -66,6 +66,9 @@ class SipAgent:
         self.__process.stdin.write("h\n"); # Hangup
         self.__waitFor("+OK")
 
+    def Wait_For_Dialtone(self):
+        self.__waitFor("+dialtone")
+
     def QuitProcess(self):
         self.__process.stdin.write("q\n"); # Quit
         self.__waitFor("+OK")
