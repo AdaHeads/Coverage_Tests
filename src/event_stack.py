@@ -22,6 +22,8 @@ class EventListenerThread(threading.Thread):
         super(EventListenerThread, self).__init__()
         self.ws_uri = uri
         self.authtoken = token
+        self.messageStack = []
+        self.open = False
     
     def stack_contains (self, event_type, call_id=None):
         for item in self.messageStack:
@@ -40,9 +42,9 @@ class EventListenerThread(threading.Thread):
             if self.stack_contains (event_type=event_type, call_id=call_id):
                 return;
             sleep (RESOLUTION)
-        raise TimeOutReached (event_type + ":" + call_id)
+        raise TimeOutReached (event_type + ":" + str (call_id))
     
-    def get_latest_event (self, event_type, call_id):
+    def getLatestEvent (self, event_type, call_id):
         for item in self.messageStack.reverse():
             if item['event'] == event_type and item['call']['id'] == call_id:
                 return item['event']
