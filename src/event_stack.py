@@ -50,11 +50,46 @@ class EventListenerThread(threading.Thread):
             sleep (RESOLUTION)
         raise TimeOutReached (event_type + ":" + str (call_id))
     
-    def getLatestEvent (self, event_type, call_id):
+    def getLatestEvent (self, event_type, call_id=None, destination=None):
         for item in self.messageStack.reverse():
-            if item['event'] == event_type and item['call']['id'] == call_id:
-                return item['event']
+            if item['event'] == event_type:
+                if call_id == None:
+                    if destination == None:
+                        return item['event']
+                    elif item['call']['destination'] == destination:
+                        return item['event']
+                elif item['call']['id'] == call_id:
+                    if destination == None:
+                        return item['event']
+                    elif item['call']['destination'] == destination:
+                        return item['event']
         return False
+
+    def Get_Latest_Event (self, Event_Type=None, Call_ID=None, Destination=None):
+        for Item in self.messageStack.reverse():
+            if Event_Type == None:
+                if Call_ID == None:
+                    if Destination == None:
+                        return Item
+                    elif Item['call']['destination'] == Destination:
+                        return Item
+                elif Item['call']['id'] == Call_ID:
+                    if Destination == None:
+                        return Item
+                    elif Item['call']['destination'] == Destination:
+                        return Item
+            elif Item['event'] == Event_Type:
+                if Call_ID == None:
+                    if Destination == None:
+                        return Item
+                    elif Item['call']['destination'] == Destination:
+                        return Item
+                elif Item['call']['id'] == Call_ID:
+                    if Destination == None:
+                        return Item
+                    elif Item['call']['destination'] == Destination:
+                        return Item
+        return None
 
     def dump_stack(self):
         return pformat(self.messageStack)

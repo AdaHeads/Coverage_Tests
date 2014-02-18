@@ -44,10 +44,12 @@ class Sequence_Diagram(unittest.TestCase):
 
         if not Client.stack_contains(event_type="call_offer", destination=self.Reception):
             self.fail (Client.dump_stack())
+            
+        return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
-    def Request_Information(self, Reception_Database):
-        logging.info("Requesting (updated) information about the reception " + str(self.Reception))
-        Data_On_Reception = Reception_Database.Single(self.Reception)
+    def Request_Information(self, Reception_Database, Reception_ID):
+        logging.info("Requesting (updated) information about reception " + str(Reception_ID))
+        Data_On_Reception = Reception_Database.Single(Reception_ID)
         logging.info("Received information: " + str(Data_On_Reception))
         
     def test_Run (self):
@@ -63,9 +65,9 @@ class Sequence_Diagram(unittest.TestCase):
             # FreeSWITCH->Call-Flow-Control: call queued with dial-tone
             # FreeSWITCH: pauses dial-plan processing for # seconds
             # Call-Flow-Control: finds free receptionists
-            self.Call_Announced (Client)
+            Reception_ID = self.Call_Announced (Client)
             # Client-N shows call to receptionist-N
-            self.Request_Information(Reception_Database)
+            self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
             
             Client.stop()            
         except:
