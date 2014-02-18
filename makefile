@@ -16,8 +16,10 @@ bin/basic_agent:
 src/config.py: src/config.py.dist
 	cp -np src/config.py.dist src/config.py
 
-distclean:
+clean:
+	rm -f  src/config.py
+
+distclean: clean
 	make -C support_tools distclean
 	rm -fr bin
-	rm -f  src/config.py
 
