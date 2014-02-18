@@ -3,7 +3,11 @@ import logging
 import json
 import config
 import threading
+from time import sleep
 from pprint import pformat
+
+class TimeOutReached(Exception):
+    pass
 
 class EventListenerThread(threading.Thread):
     
@@ -11,6 +15,7 @@ class EventListenerThread(threading.Thread):
     messageStack = []
     ws_uri       = None
     authtoken    = None
+    open         = False
     #messageStack = dict()
     
     def __init__(self, uri, token):
@@ -27,6 +32,22 @@ class EventListenerThread(threading.Thread):
                     return True
         return False
 
+    def WaitFor (self, event_type, call_id=None, timeout=10.0):
+        RESOLUTION = 0.5
+        timeSlept = 0.0;
+        while timeSlept < timeout:
+            timeSlept += RESOLUTION
+            if self.stack_contains (event_type=event_type, call_id=call_id):
+                return;
+            sleep (RESOLUTION)
+        raise TimeOutReached (event_type + ":" + call_id)
+    
+    def get_latest_event (self, event_type, call_id):
+        for item in self.messageStack.reverse():
+            if item['event'] == event_type and item['call']['id'] == call_id:
+                return item['event']
+        return False
+
     def dump_stack(self):
         return pformat(self.messageStack)
     
@@ -35,12 +56,13 @@ class EventListenerThread(threading.Thread):
 
     def on_open (self, ws):
         logging.info ("Opened websocket")
+        self.open = True
 
     def on_close(self, ws):
         logging.info ("Closed websocket")
+        self.open = False
         
     def on_message(self, ws, message):
-        #x.update({3:4})
         self.messageStack.append(json.loads(message)['notification'])
     
     def connect (self):
@@ -65,7 +87,8 @@ class EventListenerThread(threading.Thread):
             
     def stop(self):
         logging.info ("stopping websocket")
-        self.ws.close();
+        if self.open:
+            self.ws.close();
         
 if __name__ == "__main__":
 
