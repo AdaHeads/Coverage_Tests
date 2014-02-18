@@ -36,7 +36,12 @@ class Sequence_Diagram(unittest.TestCase):
         
     def Call_Announced (self, Client):
         logging.info("Receptionist's client waits for 'call_offer'...")
-        time.sleep(0.200) # As call-flow-control gives an agent 200ms to respond, the same must be fair the other way too
+
+        try:
+            Client.WaitFor ("call_offer")
+        except TimeOutReached:
+            self.fail (Client.dump_stack())
+
         if not Client.stack_contains(event_type="call_offer", destination=self.Reception):
             self.fail (Client.dump_stack())
         
