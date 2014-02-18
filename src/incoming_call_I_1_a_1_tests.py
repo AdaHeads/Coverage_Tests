@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO)
 class Sequence_Diagram(unittest.TestCase):
     Caller_Agent       = SipAgent (account=SipAccount(username=Caller.username,       password=Caller.password,       sip_port=Caller.sipport))
     Receptionist_Agent = SipAgent (account=SipAccount(username=Receptionist.username, password=Receptionist.password, sip_port=Receptionist.sipport))
+    Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
     
     Reception = config.queued_reception
         
@@ -52,6 +53,9 @@ class Sequence_Diagram(unittest.TestCase):
         Data_On_Reception = Reception_Database.Single(Reception_ID)
         logging.info("Received information: " + str(Data_On_Reception))
         
+    def Receptionist_Answers_Call(self):
+        self.Call_Flow_Control.PickupCall()
+        
     def test_Run (self):
         Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
         Client.start();
@@ -68,6 +72,7 @@ class Sequence_Diagram(unittest.TestCase):
             Reception_ID = self.Call_Announced (Client)
             # Client-N shows call to receptionist-N
             self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
+            self.Receptionist_Answers_Call()
             
             Client.stop()            
         except:
