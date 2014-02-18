@@ -67,6 +67,7 @@ class SipAgent:
         self.__waitFor("+OK")
 
     def QuitProcess(self):
+        self.HangupAllCalls()
         self.__process.stdin.write("q\n"); # Quit
         self.__waitFor("+OK")
         self.__process.wait()
