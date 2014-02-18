@@ -22,7 +22,7 @@ from sip_utils import SipAgent, SipAccount
 from call_flow_communication import callFlowServer
 
 # Sip accounts
-from sip_profiles import agent1100, agent1109 
+from sip_profiles import agent1100, agent1101, agent1102, agent1103, agent1107, agent1108, agent1109  
 
 h = httplib2.Http(".cache")
 logging.basicConfig(level=logging.INFO)
@@ -34,40 +34,58 @@ class Event_Tests(unittest.TestCase):
 
 class BasicStuff(unittest.TestCase):
     
-    cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1109.authtoken)
-    
     # Makes a call and then asserts that there is a
     # call in the call queue.
-    def test_Call_Presence (self): 
+    def test_Call_Presence (self):
+        
         customer_agent = SipAgent(account=SipAccount(username=agent1109.username, password=agent1109.password, sip_port=agent1109.sipport))
+        elt = EventListenerThread(uri=config.call_flow_events, token=agent1109.authtoken)
+        elt.start()
+        cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1109.authtoken)
         customer_agent.Connect()
         
-        reception      = config.queued_reception
-        
-        # Register the customers' sip client.
-        customer_agent.Dial (reception)
-        time.sleep(0.5) # Let the call "settle"
+        try:
+            reception      = "12340001"
+            
+            current_call_list = cfs.CallList();
+            if not current_call_list.Empty():
+                logging.error (current_call_list.toString())
+                self.fail("non-empty call list: ")
 
-        # Check that there is a call in the queue.
-        assert not self.cfs.CallList().Empty()
-        
-        customer_agent.HangupAllCalls()
-        customer_agent.QuitProcess()
-        # Check that the call is now absent from the call list.
-
-        current_call_list = self.cfs.CallList();
-        if not current_call_list.Empty():
-            self.fail("Found a non-empty call list: " + current_call_list.toString())
+            # Register the customers' sip client.
+            customer_agent.Dial (reception)
+            elt.WaitFor(event_type="call_offer")
+    
+            # Check that there is a call in the queue.
+            current_call_list = cfs.CallList();
+            if current_call_list.Empty():
+                logging.error (current_call_list.toString())
+                self.fail("Empty call list: " + str(current_call_list))
+            
+            customer_agent.QuitProcess()
+            elt.WaitFor(event_type="call_hangup")
+    
+            # Check that the call is now absent from the call list.
+            current_call_list = cfs.CallList();
+            if not current_call_list.Empty():
+                self.fail("Found a non-empty call list: " + current_call_list.toString())
+            elt.stop()
+        except:
+            logging.error (elt.dump_stack())
+            elt.stop()
+            raise            
 
     # Makes a call and then tries to pick it up from the server.
     #
     def test_Unspecified_Call_Pickup (self):
+                
         reception_id = 1
-        reception = "1234000" + str(reception_id)
-        
+        reception = "1234000" + str(reception_id)        
+
         # Start the event stack task.
         elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
         elt.start();
+        cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1100.authtoken)
         
         try:
             # Register the reeptionists' sip client.
@@ -77,41 +95,32 @@ class BasicStuff(unittest.TestCase):
             receptionist_agent.Connect()
         
             # Register the customers' sip client.
-            logging.info ("Registering customer agent " + agent1109.username)
-            customer_agent = SipAgent(account=SipAccount(username=agent1109.username, password=agent1109.password, sip_port=agent1109.sipport))
+            logging.info ("Registering customer agent " + agent1108.username)
+            customer_agent = SipAgent(account=SipAccount(username=agent1108.username, password=agent1108.password, sip_port=agent1108.sipport))
             customer_agent.Connect()
                         
             # Make a call into the reception
             logging.info ("Spawing a single call to the reception at " + reception)
             customer_agent.Dial(reception)
-
-            # Let the call settle.
-            time.sleep(0.5)
+            elt.WaitFor(event_type="call_offer")
             
-            call = self.cfs.PickupCall()
-            logging.info ("Got call " + str (call))
-            
-            time.sleep(10.0) # Wait for the call to connect...            
-             
-            customer_agent.HangupAllCalls  
-            customer_agent.QuitProcess
-            receptionist_agent.HangupAllCalls
-            receptionist_agent.QuitProcess
-            
-            # Tests
-            if not elt.stack_contains(event_type="call_offer", call_id=call['id']):
-                self.fail (elt.dump_stack())
-            elif not elt.stack_contains(event_type="call_pickup", call_id=call['id']):
-                self.fail (elt.dump_stack())
-            elif call['reception_id'] != reception_id: 
+            call = cfs.PickupCall()
+            if call['reception_id'] != reception_id: 
                 self.fail ("Invalid reception ID in allocated call.")
-            
-            #TODO Check for hangup event.
-#            if not elt.stack_contains("call_hangup"):
-#                self.fail("call_hangup event not found in " + elt.dump_stack())
+
+            logging.info ("Got call " + call['id'] + " waiting for transfer..")
+            elt.WaitFor(event_type="call_pickup", call_id=call['id'])
+
+            cfs.HangupCall (call_id=call['id'])
+            customer_agent.QuitProcess
+            receptionist_agent.QuitProcess
                 
+            elt.WaitFor(event_type="call_hangup", call_id=call['id'])
+            # Check that no calls are in the call list.
+            current_call_list = cfs.CallList();
             elt.stop()
         except:
+            logging.error (elt.dump_stack())
             elt.stop()
             raise
 
@@ -123,51 +132,47 @@ class BasicStuff(unittest.TestCase):
         reception = "1234000" + str (reception_id)
         
         # Start the event stack task.
-        elt = EventListenerThread(uri=config.call_flow_events, token=agent1100.authtoken)
+        elt = EventListenerThread(uri=config.call_flow_events, token=agent1101.authtoken)
         elt.start();
+        cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1101.authtoken)
         
         try:
             # Register the reeptionists' sip client.
-            logging.info ("Registering receptionist agent " + agent1100.username)
-            receptionist_agent = SipAgent(account=SipAccount(username=agent1100.username, password=agent1100.password, sip_port=agent1100.sipport))
+            logging.info ("Registering receptionist agent " + agent1101.username)
+            receptionist_agent = SipAgent(account=SipAccount(username=agent1101.username, password=agent1101.password, sip_port=agent1101.sipport))
     
             receptionist_agent.Connect()
         
             # Register the customers' sip client.
-            logging.info ("Registering customer agent " + agent1109.username)
-            customer_agent = SipAgent(account=SipAccount(username=agent1109.username, password=agent1109.password, sip_port=agent1109.sipport))
+            logging.info ("Registering customer agent " + agent1107.username)
+            customer_agent = SipAgent(account=SipAccount(username=agent1107.username, password=agent1107.password, sip_port=agent1107.sipport))
             customer_agent.Connect()
                         
             # Make a call into the reception
             logging.info ("Spawing a single call to the reception at " + reception)
             customer_agent.Dial(reception)
+            elt.WaitFor(event_type="call_offer")
+            
+            call = cfs.PickupCall()
+            if call['reception_id'] != reception_id: 
+                self.fail ("Invalid reception ID in allocated call.")
 
-            # Let the call settle.
-            time.sleep(0.5)
+            logging.info ("Got call " + call['id'] + " waiting for transfer..")
+            elt.WaitFor(event_type="call_pickup", call_id=call['id'])
             
-            call = self.cfs.PickupCall()
-            logging.info ("Got call " + str (call['id']))
+            cfs.ParkCall (call_id=call['id'])
+            elt.WaitFor(event_type="call_park", call_id=call['id'])
+            cfs.PickupCall (call_id=call['id'])
+            elt.WaitFor(event_type="call_unpark", call_id=call['id'])
+            elt.WaitFor(event_type="call_pickup", call_id=call['id'])
             
-            time.sleep(5.0) # Wait for the call to connect...
-            
-            self.cfs.ParkCall (call_id=call['id'])
-            time.sleep(1.0)
-            self.cfs.PickupCall (call_id=call['id'])
-            time.sleep(5.0) # Wait for the call to connect...
-            
-            customer_agent.HangupAllCalls  
-            receptionist_agent.HangupAllCalls
+            cfs.HangupCall (call_id=call['id'])
+
+            elt.WaitFor(event_type="call_hangup", call_id=call['id'])
+
             customer_agent.QuitProcess;  
             receptionist_agent.QuitProcess;
 
-            time.sleep(2.0)
-            # Tests
-            if not elt.stack_contains(event_type="call_offer", call_id=call['id']):
-                self.fail (elt.dump_stack())
-            elif not elt.stack_contains(event_type="call_pickup", call_id=call['id']):
-                self.fail (elt.dump_stack())
-            elif call['reception_id'] != reception_id: 
-                self.fail ("Invalid reception ID in allocated call.")
             elt.stop()
         except:
             elt.stop()
@@ -206,8 +211,8 @@ if __name__ == "__main__":
     # Make a call into the reception
     logging.info ("Spawing a single call to the reception at " + reception)
     customer_agent.Dial(reception)
+    elt.WaitFor(event_type="call_offer")
     
-    time.sleep(2)
     logging.info ("Trying to pickup call")
     print "call list empty: " + str (cfs.CallList().Empty())
     
@@ -221,10 +226,9 @@ if __name__ == "__main__":
     time.sleep(10)
     #logging.info ("Waiting for p2: " + content)
     
-    customer_agent.HangupAllCalls()
     customer_agent.QuitProcess()
     
-    receptionist_agent.HangupAllCalls()
+    self.cfs.HangupCall (call_id=call['id'])
     receptionist_agent.QuitProcess()
 
     #TODO assert that the call list is empty at this point.

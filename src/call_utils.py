@@ -17,7 +17,10 @@ class CallList ():
     
     def toString(self):
         return json.dumps(self.__JSONlist)
-        
+    
+    def Calls(self):
+        return self.__JSONlist['calls']
+    
     def locateCall (self, call_id):
         foundCall = None
         for call in self.__JSONlist['calls']:

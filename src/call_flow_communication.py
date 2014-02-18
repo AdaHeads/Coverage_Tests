@@ -11,9 +11,13 @@ class Server_Unavailable(Exception):
 class Server_404(Exception):
     pass
 
+class Server_401(Exception):
+    pass
+
 class callFlowServer:
     
     class protocol:
+        callHangup = "/call/hangup"
         callList   = "/call/list"
         callQueue  = "/call/queue"
         callPark   = "/call/park"
@@ -28,7 +32,6 @@ class callFlowServer:
     def __init__ (self, uri, authtoken):
         self.uri       = uri
         self.authtoken = authtoken
-
 
     def TokenValid(self):
         path = self.protocol.callList + self.protocol.tokenParam + self.authtoken
@@ -50,7 +53,9 @@ class callFlowServer:
             logging.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
         if headers['status'] == '404':
-            raise Server_404 (method + " " + path)
+            raise Server_404 (method + " " + path + " Response:" + body)
+        elif headers['status'] == '401':
+            raise Server_401 (method + " " + path + " Response:" + body)
         
         return headers, body
 
@@ -61,6 +66,16 @@ class callFlowServer:
             headers, body = self.Request(self.protocol.callPickup, "POST", params={'call_id' : call_id})
             
         return json.loads (body)
+
+    def HangupCall (self, call_id):
+        headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
+            
+        return json.loads (body)
+
+    def HangupAllCalls (self):
+        
+        for call in self.CallList().Calls():
+            self.HangupCall(call['id'])
 
     def ParkCall (self, call_id=None):
         if call_id == None:
