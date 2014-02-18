@@ -44,6 +44,9 @@ support_tools/pjproject-2.1
 support_tools/pjproject-2.1.0/
 support_tools/pjproject-2.1.tar.bz2
 
+# Log(?) files:
+.cache/
+
 # Configuration files:
 src/config.py
 
