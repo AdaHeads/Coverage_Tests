@@ -25,7 +25,6 @@ class Sequence_Diagram(unittest.TestCase):
     Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=Receptionist.authtoken)
     
     Reception = config.queued_reception
-    Call      = None
     
     def Setup (self):
         logging.info ("Step 0:")
@@ -72,13 +71,14 @@ class Sequence_Diagram(unittest.TestCase):
         
         return Data_On_Reception
         
-    def Receptionist_Offers_To_Answer_Call(self, Reception_ID):
+    def Offers_To_Answer_Call(self, Call_Flow_Control, Reception_ID):
         logging.info ("Step 11:")
 
-        self.Call = self.Call_Flow_Control.PickupCall()
-        if self.Call['destination'] != self.Reception: 
+        Call = Call_Flow_Control.PickupCall()
+
+        if Call['destination'] != self.Reception: 
             self.fail ("Unexpected destination in allocated call.")
-        if self.Call['reception_id'] != Reception_ID: 
+        if Call['reception_id'] != Reception_ID: 
             self.fail ("Unexpected reception ID in allocated call.")
         
     def Call_Flow_Control_Acknowledges_Call_Allocation (self, Client, Reception_ID):
@@ -129,7 +129,7 @@ class Sequence_Diagram(unittest.TestCase):
             Reception_ID = self.Call_Announced (Client)
             logging.info ("Step 8: Client-N shows call to receptionist-N")
             Reception_Data = self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
-            self.Receptionist_Offers_To_Answer_Call(Reception_ID=Reception_ID)
+            self.Offers_To_Answer_Call(Call_Flow_Control=self.Call_Flow_Control, Reception_ID=Reception_ID)
             Call_Information = self.Call_Flow_Control_Acknowledges_Call_Allocation(Client=Client, Reception_ID=Reception_ID)
             logging.info ("Step 13: Call-Flow-Control->FreeSWITCH: connect call to phone-N")
             self.Receptionist_Answers(Call_Information=Call_Information, Reception_Information=Reception_Data)
