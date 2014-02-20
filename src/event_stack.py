@@ -51,7 +51,7 @@ class EventListenerThread(threading.Thread):
         raise TimeOutReached (event_type + ":" + str (call_id))
     
     def getLatestEvent (self, event_type, call_id=None, destination=None):
-        for item in self.messageStack.reverse():
+        for item in reversed (self.messageStack):
             if item['event'] == event_type:
                 if call_id == None:
                     if destination == None:
@@ -67,11 +67,11 @@ class EventListenerThread(threading.Thread):
 
     def Get_Latest_Event (self, Event_Type, Call_ID=None, Destination=None):
         try:
-            
-            for item in self.messageStack.reverse():
-                
+            for item in reversed (self.messageStack):    
                 if item['event'] == Event_Type:
                     if Call_ID == None:
+                        logging.info ("Destination: " + item['call']['destination'])
+                        
                         if Destination == None:
                             return item
                         elif item['call']['destination'] == Destination:
@@ -82,8 +82,10 @@ class EventListenerThread(threading.Thread):
                             elif item['call']['destination'] == Destination:
                                 return item
         except:
-            logging.critical(self.messageStack)
-            
+            logging.critical ("Exception in Get_Latest_Event: messageStack = " + str (self.messageStack))
+            raise
+           
+        logging.info ("Didn't find a match on {Event_Type = " + Event_Type + " & Call_ID = " + str(Call_ID) + " & Destination = " + str(Destination) + "}") 
         return None
 
     def dump_stack(self):
