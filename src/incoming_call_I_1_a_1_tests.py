@@ -1,6 +1,5 @@
 import config
 import logging
-import time
 
 from sip_utils import SipAgent, SipAccount
 
@@ -13,6 +12,7 @@ from sip_profiles import agent1102 as Caller
 from sip_profiles import agent1105 as Receptionist 
 
 from event_stack import EventListenerThread
+from event_stack import TimeOutReached
 from call_flow_communication import callFlowServer
 from database_reception import Database_Reception
 
@@ -26,21 +26,34 @@ class Sequence_Diagram(unittest.TestCase):
     Reception = config.queued_reception
     Call      = None
     
+    def Setup (self):
+        logging.info ("Step 0:")
+        logging.info ("Connecting receptionist agent...")
+        self.Receptionist_Agent.Connect ()
+        logging.info ("Checking token validity against Call-Flow-Control...")
+        if self.Call_Flow_Control.TokenValid:
+            logging.info ("Valid token.")
+        else:
+            self.fail ("Invalid authentication token.")
+        
     def Caller_Places_Call (self):
+        logging.info ("Step 1:")
         logging.info("Connecting caller agent...")
         self.Caller_Agent.Connect ()
         logging.info("Dialling through caller agent...")
         self.Caller_Agent.Dial (self.Reception)
 
     def Caller_Hears_Dialtone (self):
+        logging.info ("Step 2:")
         logging.info("Caller agent waits for dial-tone...")
         self.Caller_Agent.Wait_For_Dialtone ()
         
     def Call_Announced (self, Client):
+        logging.info ("Step 7:")
         logging.info("Receptionist's client waits for 'call_offer'...")
 
         try:
-            Client.WaitFor ("call_offer")
+            Client.WaitFor ("call_offer", timeout=0.6)
         except TimeOutReached:
             self.fail (Client.dump_stack())
 
@@ -50,11 +63,15 @@ class Sequence_Diagram(unittest.TestCase):
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
     def Request_Information(self, Reception_Database, Reception_ID):
+        logging.info ("Step 9:")
         logging.info("Requesting (updated) information about reception " + str(Reception_ID))
         Data_On_Reception = Reception_Database.Single(Reception_ID)
+        logging.info ("Step 10:")
         logging.info("Received information: " + str(Data_On_Reception))
         
     def Receptionist_Offers_To_Answer_Call(self, Reception_ID):
+        logging.info ("Step 11:")
+
         self.Call = self.Call_Flow_Control.PickupCall()
         if self.Call['destination'] != self.Reception_ID: 
             self.fail ("Unexpected destination in allocated call.")
@@ -64,18 +81,19 @@ class Sequence_Diagram(unittest.TestCase):
     def test_Run (self):
         Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
         Client.start();
-        
-        Reception_Database = Database_Reception(uri=config.reception_server_uri, authtoken=Receptionist.authtoken)
-        
+
         try:
-            self.Caller_Places_Call()
-            self.Caller_Hears_Dialtone()
-            # FreeSWITCH: checks dial-plan => to queue
-            # FreeSWITCH->Call-Flow-Control: call queued with dial-tone
-            # FreeSWITCH: pauses dial-plan processing for # seconds
-            # Call-Flow-Control: finds free receptionists
+            Reception_Database = Database_Reception(uri=config.reception_server_uri, authtoken=Receptionist.authtoken)
+            self.Setup ()
+            
+            self.Caller_Places_Call ()
+            self.Caller_Hears_Dialtone ()
+            logging.info ("Step 3: FreeSWITCH: checks dial-plan => to queue")
+            logging.info ("Step 4: FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
+            logging.info ("Step 5: FreeSWITCH: pauses dial-plan processing for # seconds")
+            logging.info ("Step 6: Call-Flow-Control: finds free receptionists")
             Reception_ID = self.Call_Announced (Client)
-            # Client-N shows call to receptionist-N
+            logging.info ("Step 8: Client-N shows call to receptionist-N")
             self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
             self.Receptionist_Offers_To_Answer_Call(Reception_ID=Reception_ID)
             
