@@ -73,7 +73,7 @@ class Sequence_Diagram(unittest.TestCase):
         logging.info ("Step 11:")
 
         self.Call = self.Call_Flow_Control.PickupCall()
-        if self.Call['destination'] != self.Reception_ID: 
+        if self.Call['destination'] != self.Reception: 
             self.fail ("Unexpected destination in allocated call.")
         if self.Call['reception_id'] != Reception_ID: 
             self.fail ("Unexpected reception ID in allocated call.")
