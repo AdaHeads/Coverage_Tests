@@ -1,5 +1,6 @@
 import config
 import logging
+from pprint import pformat
 
 from sip_utils import SipAgent, SipAccount
 
@@ -67,7 +68,9 @@ class Sequence_Diagram(unittest.TestCase):
         logging.info("Requesting (updated) information about reception " + str(Reception_ID))
         Data_On_Reception = Reception_Database.Single(Reception_ID)
         logging.info ("Step 10:")
-        logging.info("Received information: " + str(Data_On_Reception))
+        logging.info("Received information: " + pformat (Data_On_Reception))
+        
+        return Data_On_Reception
         
     def Receptionist_Offers_To_Answer_Call(self, Reception_ID):
         logging.info ("Step 11:")
@@ -91,6 +94,23 @@ class Sequence_Diagram(unittest.TestCase):
             self.fail (Client.dump_stack())
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
             self.fail (Client.dump_stack())
+        logging.info ("Call picked up: " + pformat (Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)))
+        
+        return Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)
+        
+    def Receptionist_Answers (self, Call_Information, Reception_Information):
+        logging.info ("Step 14:")
+        
+        if Call_Information['call']['greeting_played']:
+            try:
+                logging.info ("Receptionist says '" + Reception_Information['greeting_after_automatic_answer'] + "'.")
+            except:
+                self.fail ("Reception information missing 'greeting_after_automatic_answer'.")
+        else:
+            try:
+                logging.info ("Receptionist says '" + Reception_Information['greeting'] + "'.")
+            except:
+                self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
         Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
@@ -108,9 +128,11 @@ class Sequence_Diagram(unittest.TestCase):
             logging.info ("Step 6: Call-Flow-Control: finds free receptionists")
             Reception_ID = self.Call_Announced (Client)
             logging.info ("Step 8: Client-N shows call to receptionist-N")
-            self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
+            Reception_Data = self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
             self.Receptionist_Offers_To_Answer_Call(Reception_ID=Reception_ID)
-            self.Call_Flow_Control_Acknowledges_Call_Allocation(Client=Client, Reception_ID=Reception_ID)
+            Call_Information = self.Call_Flow_Control_Acknowledges_Call_Allocation(Client=Client, Reception_ID=Reception_ID)
+            logging.info ("Step 13: Call-Flow-Control->FreeSWITCH: connect call to phone-N")
+            self.Receptionist_Answers(Call_Information=Call_Information, Reception_Information=Reception_Data)
             
             Client.stop()            
         except:
