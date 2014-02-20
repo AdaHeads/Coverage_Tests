@@ -28,8 +28,10 @@ class Sequence_Diagram(unittest.TestCase):
     
     def Setup (self):
         logging.info ("Step 0:")
+
         logging.info ("Connecting receptionist agent...")
         self.Receptionist_Agent.Connect ()
+        
         logging.info ("Checking token validity against Call-Flow-Control...")
         if self.Call_Flow_Control.TokenValid:
             logging.info ("Valid token.")
@@ -38,18 +40,20 @@ class Sequence_Diagram(unittest.TestCase):
         
     def Caller_Places_Call (self):
         logging.info ("Step 1:")
+        
         logging.info("Connecting caller agent...")
         self.Caller_Agent.Connect ()
+        
         logging.info("Dialling through caller agent...")
         self.Caller_Agent.Dial (self.Reception)
 
     def Caller_Hears_Dialtone (self):
-        logging.info ("Step 2:")
+        logging.info ("Step 2:")        
         logging.info("Caller agent waits for dial-tone...")
         self.Caller_Agent.Wait_For_Dialtone ()
         
     def Call_Announced (self, Client):
-        logging.info ("Step 7:")
+        logging.info ("Step 7:")        
         logging.info("Receptionist's client waits for 'call_offer'...")
 
         try:
@@ -63,10 +67,11 @@ class Sequence_Diagram(unittest.TestCase):
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
     def Request_Information(self, Reception_Database, Reception_ID):
-        logging.info ("Step 9:")
+        logging.info ("Step 9:")        
         logging.info("Requesting (updated) information about reception " + str(Reception_ID))
         Data_On_Reception = Reception_Database.Single(Reception_ID)
-        logging.info ("Step 10:")
+        
+        logging.info ("Step 10:")        
         logging.info("Received information: " + pformat (Data_On_Reception))
         
         return Data_On_Reception
@@ -81,7 +86,7 @@ class Sequence_Diagram(unittest.TestCase):
         if Call['reception_id'] != Reception_ID: 
             self.fail ("Unexpected reception ID in allocated call.")
         
-    def Call_Flow_Control_Acknowledges_Call_Allocation (self, Client, Reception_ID):
+    def Call_Allocation_Acknowledgement (self, Client, Reception_ID, Receptionist_ID):
         logging.info ("Step 12:")
         logging.info("Receptionist's client waits for 'call_pickup'...")
 
@@ -93,6 +98,8 @@ class Sequence_Diagram(unittest.TestCase):
         if not Client.stack_contains(event_type="call_pickup", destination=self.Reception):
             self.fail (Client.dump_stack())
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
+            self.fail (Client.dump_stack())
+        if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['assigned_to'] == Receptionist_ID:
             self.fail (Client.dump_stack())
         logging.info ("Call picked up: " + pformat (Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)))
         
@@ -113,11 +120,13 @@ class Sequence_Diagram(unittest.TestCase):
                 self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
-        Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
-        Client.start();
+        Client = EventListenerThread (uri   = config.call_flow_events,
+                                      token = Receptionist.authtoken)
+        Client.start ();
 
         try:
-            Reception_Database = Database_Reception(uri=config.reception_server_uri, authtoken=Receptionist.authtoken)
+            Reception_Database = Database_Reception (uri       = config.reception_server_uri,
+                                                     authtoken = Receptionist.authtoken)
             self.Setup ()
             
             self.Caller_Places_Call ()
@@ -126,13 +135,18 @@ class Sequence_Diagram(unittest.TestCase):
             logging.info ("Step 4: FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             logging.info ("Step 5: FreeSWITCH: pauses dial-plan processing for # seconds")
             logging.info ("Step 6: Call-Flow-Control: finds free receptionists")
-            Reception_ID = self.Call_Announced (Client)
+            Reception_ID = self.Call_Announced (Client = Client)
             logging.info ("Step 8: Client-N shows call to receptionist-N")
-            Reception_Data = self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
-            self.Offers_To_Answer_Call(Call_Flow_Control=self.Call_Flow_Control, Reception_ID=Reception_ID)
-            Call_Information = self.Call_Flow_Control_Acknowledges_Call_Allocation(Client=Client, Reception_ID=Reception_ID)
+            Reception_Data = self.Request_Information (Reception_Database = Reception_Database, 
+                                                       Reception_ID       = Reception_ID)
+            self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Flow_Control,
+                                        Reception_ID      = Reception_ID)
+            Call_Information = self.Call_Allocation_Acknowledgement (Client          = Client,
+                                                                     Reception_ID    = Reception_ID,
+                                                                     Receptionist_ID = Receptionist.ID)
             logging.info ("Step 13: Call-Flow-Control->FreeSWITCH: connect call to phone-N")
-            self.Receptionist_Answers(Call_Information=Call_Information, Reception_Information=Reception_Data)
+            self.Receptionist_Answers (Call_Information      = Call_Information,
+                                       Reception_Information = Reception_Data)
             
             Client.stop()            
         except:
