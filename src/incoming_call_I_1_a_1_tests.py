@@ -78,6 +78,20 @@ class Sequence_Diagram(unittest.TestCase):
         if self.Call['reception_id'] != Reception_ID: 
             self.fail ("Unexpected reception ID in allocated call.")
         
+    def Call_Flow_Control_Acknowledges_Call_Allocation (self, Client, Reception_ID):
+        logging.info ("Step 12:")
+        logging.info("Receptionist's client waits for 'call_pickup'...")
+
+        try:
+            Client.WaitFor ("call_pickup")
+        except TimeOutReached:
+            self.fail (Client.dump_stack())
+
+        if not Client.stack_contains(event_type="call_pickup", destination=self.Reception):
+            self.fail (Client.dump_stack())
+        if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
+            self.fail (Client.dump_stack())
+        
     def test_Run (self):
         Client = EventListenerThread(uri=config.call_flow_events, token=Receptionist.authtoken)
         Client.start();
@@ -96,6 +110,7 @@ class Sequence_Diagram(unittest.TestCase):
             logging.info ("Step 8: Client-N shows call to receptionist-N")
             self.Request_Information(Reception_Database=Reception_Database, Reception_ID=Reception_ID)
             self.Receptionist_Offers_To_Answer_Call(Reception_ID=Reception_ID)
+            self.Call_Flow_Control_Acknowledges_Call_Allocation(Client=Client, Reception_ID=Reception_ID)
             
             Client.stop()            
         except:
