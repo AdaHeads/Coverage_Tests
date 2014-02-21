@@ -1,6 +1,7 @@
 import logging
-from pprint import pformat
-from time   import sleep
+from pprint     import pformat
+from time       import sleep
+from subprocess import call
 
 try:
     import unittest2 as unittest
@@ -140,6 +141,7 @@ class Sequence_Diagram (unittest.TestCase):
                 self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
+        call (["killall", "basic_agent"])
         sleep (1.0) # Letting the system clean up and settle after the previous test run.
 
         Client = EventListenerThread (uri   = config.call_flow_events,
