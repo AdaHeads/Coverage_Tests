@@ -23,8 +23,8 @@ class PeerTests(unittest.TestCase):
     
         peer = self.cfs.peerList().locatePeer(agent1103.username)
         counter = 0
-        while peer ['registered'] and counter < 100:
-            sleep (0.100)
+        while peer ['registered'] and counter < 10:
+            sleep (1.000)
             peer = self.cfs.peerList().locatePeer(agent1103.username)
             counter = counter + 1
         
