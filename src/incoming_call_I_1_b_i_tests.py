@@ -128,6 +128,8 @@ class Sequence_Diagram (unittest.TestCase):
                 self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
+        sleep (1.0) # Letting the system clean up and settle after the previous test run.
+
         Client = EventListenerThread (uri   = config.call_flow_events,
                                       token = Receptionist.authtoken)
         Client.start ();
