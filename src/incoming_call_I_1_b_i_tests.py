@@ -40,7 +40,7 @@ class Sequence_Diagram (unittest.TestCase):
         
     def Tear_Down (self):
         self.Caller_Agent.QuitProcess ()
-        self.Receptionist_Agent.Quit_Process ()        
+        self.Receptionist_Agent.QuitProcess ()        
 
     def Caller_Places_Call (self):
         logging.info ("Step 1:")

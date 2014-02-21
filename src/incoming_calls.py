@@ -67,7 +67,7 @@ class Test_Case (unittest.TestCase):
 
     def Tear_Down (self):
         self.Caller_Agent.QuitProcess ()
-        self.Receptionist_Agent.Quit_Process ()        
+        self.Receptionist_Agent.QuitProcess ()        
              
     def Step (self,
               Message,
