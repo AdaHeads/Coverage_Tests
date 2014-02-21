@@ -128,7 +128,7 @@ class BasicStuff(unittest.TestCase):
     # Makes a call and then asserts that there is a
     # call in the call queue.
     def test_Call_Park_And_Pickup (self):
-        reception_id = 2
+        reception_id = 1
         reception = "1234000" + str (reception_id)
 
         # Start the event stack task.
@@ -155,7 +155,7 @@ class BasicStuff(unittest.TestCase):
 
             call = cfs.PickupCall()
             if call['reception_id'] != reception_id:
-                self.fail ("Invalid reception ID in allocated call.")
+                self.fail ("Invalid reception ID in allocated call:" + pformat(call))
 
             logging.info ("Got call " + call['id'] + " waiting for transfer..")
             elt.WaitFor(event_type="call_pickup", call_id=call['id'])
