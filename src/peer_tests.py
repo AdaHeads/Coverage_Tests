@@ -21,8 +21,11 @@ class PeerTests(unittest.TestCase):
         sipagent = SipAgent(account=SipAccount(username=agent1103.username, password=agent1103.password, sip_port=agent1103.sipport))
     
         peer = self.cfs.peerList().locatePeer(agent1103.username)
-        if peer ['registered']:
-            self.fail("Peer seems to be already registered: " + str (peer))
+        counter = 0
+        while peer ['registered'] and counter < 100:
+            sleep (0.100)
+            peer = self.cfs.peerList().locatePeer(agent1103.username)
+            counter = counter + 1
         
         sipagent.Connect()
         peer = self.cfs.peerList().locatePeer(agent1103.username)
