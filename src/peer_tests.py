@@ -1,7 +1,8 @@
 import logging
+from time import sleep
+
 import config
 from call_flow_communication import callFlowServer
-
 from sip_profiles import agent1103
 from sip_utils import SipAccount, SipAgent
 
