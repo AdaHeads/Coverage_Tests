@@ -108,7 +108,7 @@ class Sequence_Diagram(unittest.TestCase):
 
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['assigned_to'] == Receptionist_ID:
             logging.critical (Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
+            pytest.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
 
         logging.info ("Call picked up: " + pformat (Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)))
         
