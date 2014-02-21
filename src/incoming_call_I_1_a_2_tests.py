@@ -1,27 +1,25 @@
-import config
 import logging
 from pprint import pformat
-from time import sleep
-
-from sip_utils import SipAgent, SipAccount
+from time   import sleep
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from sip_profiles import agent1102 as Caller 
-from sip_profiles import agent1103 as Receptionist 
-from sip_profiles import agent1106 as Call_Stealer 
-
-from event_stack import EventListenerThread
-from event_stack import TimeOutReached
+import config
+from sip_utils               import SipAgent, SipAccount
+from event_stack             import EventListenerThread
+from event_stack             import TimeOutReached
 from call_flow_communication import callFlowServer
-from database_reception import Database_Reception
+from database_reception      import Database_Reception
+from sip_profiles            import agent1102 as Caller 
+from sip_profiles            import agent1103 as Receptionist 
+from sip_profiles            import agent1106 as Call_Stealer 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig (level = logging.INFO)
 
-class Sequence_Diagram(unittest.TestCase):
+class Sequence_Diagram (unittest.TestCase):
     Caller_Agent        = SipAgent (account=SipAccount(username=Caller.username,       password=Caller.password,       sip_port=Caller.sipport))
     Receptionist_Agent  = SipAgent (account=SipAccount(username=Receptionist.username, password=Receptionist.password, sip_port=Receptionist.sipport))
     Call_Stealing_Agent = SipAgent (account=SipAccount(username=Call_Stealer.username, password=Call_Stealer.password, sip_port=Call_Stealer.sipport))
