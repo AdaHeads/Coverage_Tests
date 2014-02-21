@@ -64,7 +64,11 @@ class Test_Case (unittest.TestCase):
 
         self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                       authtoken = self.Receptionist.authtoken)
-    
+
+    def Tear_Down (self):
+        self.Caller_Agent.QuitProcess ()
+        self.Receptionist_Agent.Quit_Process ()        
+             
     def Step (self,
               Message,
               Delay_In_Seconds = 0.0):
@@ -166,4 +170,3 @@ class Test_Case (unittest.TestCase):
         else:
             if Call_Information['call']['greeting_played']:
                 self.fail ("It appears that the receptionist waited too long, and allowed the caller to hear the recorded message.")
-        

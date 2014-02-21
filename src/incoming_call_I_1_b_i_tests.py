@@ -38,6 +38,10 @@ class Sequence_Diagram (unittest.TestCase):
         else:
             self.fail ("Invalid authentication token.")
         
+    def Tear_Down (self):
+        self.Caller_Agent.QuitProcess ()
+        self.Receptionist_Agent.Quit_Process ()        
+
     def Caller_Places_Call (self):
         logging.info ("Step 1:")
         
@@ -166,6 +170,8 @@ class Sequence_Diagram (unittest.TestCase):
                                        Reception_Information = Reception_Data)
             
             Client.stop()            
+            self.Tear_Down ()            
         except:
             Client.stop()
+            self.Tear_Down ()            
             raise
