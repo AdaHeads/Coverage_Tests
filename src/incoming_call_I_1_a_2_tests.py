@@ -1,3 +1,5 @@
+import pytest
+
 import config
 import logging
 from pprint import pformat
@@ -43,13 +45,13 @@ class Sequence_Diagram(unittest.TestCase):
         if self.Call_Flow_Control.TokenValid:
             logging.info ("Valid token.")
         else:
-            self.fail ("Invalid authentication token.")
+            pytest.fail ("Invalid authentication token.")
 
         logging.info ("Checking call stealing token validity against Call-Flow-Control...")
         if self.Call_Steal_Control.TokenValid:
             logging.info ("Valid token.")
         else:
-            self.fail ("Invalid call stealing authentication token.")
+            pytest.fail ("Invalid call stealing authentication token.")
         
     def Caller_Places_Call (self):
         logging.info ("Step 1:")
@@ -73,11 +75,11 @@ class Sequence_Diagram(unittest.TestCase):
             Client.WaitFor ("call_offer")
         except TimeOutReached:
             logging.critical (Client.dump_stack ())
-            self.fail ("Call offer didn't arrive from Call-Flow-Control.")
+            pytest.fail ("Call offer didn't arrive from Call-Flow-Control.")
 
         if not Client.stack_contains(event_type="call_offer", destination=self.Reception):
             logging.critical (Client.dump_stack ())
-            self.fail ("The arrived call offer was not for the expected reception (destination).")
+            pytest.fail ("The arrived call offer was not for the expected reception (destination).")
             
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
@@ -97,9 +99,9 @@ class Sequence_Diagram(unittest.TestCase):
         Call = Call_Flow_Control.PickupCall()
         
         if Call['destination'] != self.Reception: 
-            self.fail ("Unexpected destination in allocated call.")
+            pytest.fail ("Unexpected destination in allocated call.")
         if Call['reception_id'] != Reception_ID: 
-            self.fail ("Unexpected reception ID in allocated call.")
+            pytest.fail ("Unexpected reception ID in allocated call.")
         
     def Call_Allocation_Acknowledgement (self, Client, Reception_ID, Receptionist_ID):
         logging.info ("Step 12:")
@@ -109,19 +111,19 @@ class Sequence_Diagram(unittest.TestCase):
             Client.WaitFor ("call_pickup")
         except TimeOutReached:
             logging.critical (Client.dump_stack ())
-            self.fail ("No 'call_pickup' event arrived from Call-Flow-Control.")
+            pytest.fail ("No 'call_pickup' event arrived from Call-Flow-Control.")
 
         if not Client.stack_contains(event_type="call_pickup", destination=self.Reception):
             logging.critical (Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected reception (destination).")
+            pytest.fail ("The arrived 'call_pickup' event was not for the expected reception (destination).")
 
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
             logging.critical (Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected reception (reception ID).")
+            pytest.fail ("The arrived 'call_pickup' event was not for the expected reception (reception ID).")
 
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['assigned_to'] == Receptionist_ID:
             logging.critical (Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
+            pytest.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
 
         logging.info ("Call picked up: " + pformat (Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)))
         
@@ -134,12 +136,12 @@ class Sequence_Diagram(unittest.TestCase):
             try:
                 logging.info ("Receptionist says '" + Reception_Information['greeting_after_automatic_answer'] + "'.")
             except:
-                self.fail ("Reception information missing 'greeting_after_automatic_answer'.")
+                pytest.fail ("Reception information missing 'greeting_after_automatic_answer'.")
         else:
             try:
                 logging.info ("Receptionist says '" + Reception_Information['greeting'] + "'.")
             except:
-                self.fail ("Reception information missing 'greeting'.")
+                pytest.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
         Client = EventListenerThread (uri   = config.call_flow_events,
@@ -185,7 +187,7 @@ class Sequence_Diagram(unittest.TestCase):
                                                                          Receptionist_ID = Receptionist.ID)
                 raise Incorrectly_Allocated_Call
             except Incorrectly_Allocated_Call:
-                self.fail("The incoming call was somehow allocated to the late receptionist. :-(")
+                pytest.fail("The incoming call was somehow allocated to the late receptionist. :-(")
             except:
                 logging.info ("We're happy to note that the receptionist - as planned - didn't get the call.")
                 
