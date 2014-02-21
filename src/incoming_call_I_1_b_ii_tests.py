@@ -13,41 +13,29 @@ from event_stack             import EventListenerThread
 from event_stack             import TimeOutReached
 from call_flow_communication import callFlowServer
 from database_reception      import Database_Reception
-from sip_profiles            import agent1102 as Caller 
-from sip_profiles            import agent1103 as Receptionist 
-from sip_profiles            import agent1106 as Call_Stealer 
+from sip_profiles            import agent1106 as Caller 
+from sip_profiles            import agent1109 as Receptionist 
 
 logging.basicConfig (level = logging.INFO)
 
 class Sequence_Diagram (unittest.TestCase):
-    Caller_Agent        = SipAgent (account=SipAccount(username=Caller.username,       password=Caller.password,       sip_port=Caller.sipport))
-    Receptionist_Agent  = SipAgent (account=SipAccount(username=Receptionist.username, password=Receptionist.password, sip_port=Receptionist.sipport))
-    Call_Stealing_Agent = SipAgent (account=SipAccount(username=Call_Stealer.username, password=Call_Stealer.password, sip_port=Call_Stealer.sipport))
-    Call_Flow_Control   = callFlowServer(uri=config.call_flow_server_uri, authtoken=Receptionist.authtoken)
-    Call_Steal_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=Call_Stealer.authtoken)
+    Caller_Agent       = SipAgent (account=SipAccount(username=Caller.username,       password=Caller.password,       sip_port=Caller.sipport))
+    Receptionist_Agent = SipAgent (account=SipAccount(username=Receptionist.username, password=Receptionist.password, sip_port=Receptionist.sipport))
+    Call_Flow_Control  = callFlowServer(uri=config.call_flow_server_uri, authtoken=Receptionist.authtoken)
     
     Reception = config.queued_reception
     
     def Setup (self):
         logging.info ("Step 0:")
-        
+
         logging.info ("Connecting receptionist agent...")
         self.Receptionist_Agent.Connect ()
-
-        logging.info ("Connecting call stealing agent...")
-        self.Call_Stealing_Agent.Connect ()
         
         logging.info ("Checking token validity against Call-Flow-Control...")
         if self.Call_Flow_Control.TokenValid:
             logging.info ("Valid token.")
         else:
             self.fail ("Invalid authentication token.")
-
-        logging.info ("Checking call stealing token validity against Call-Flow-Control...")
-        if self.Call_Steal_Control.TokenValid:
-            logging.info ("Valid token.")
-        else:
-            self.fail ("Invalid call stealing authentication token.")
         
     def Caller_Places_Call (self):
         logging.info ("Step 1:")
@@ -59,12 +47,12 @@ class Sequence_Diagram (unittest.TestCase):
         self.Caller_Agent.Dial (self.Reception)
 
     def Caller_Hears_Dialtone (self):
-        logging.info ("Step 2:")
+        logging.info ("Step 2:")        
         logging.info("Caller agent waits for dial-tone...")
         self.Caller_Agent.Wait_For_Dialtone ()
         
     def Call_Announced (self, Client):
-        logging.info ("Step 7:")
+        logging.info ("Step 7:")        
         logging.info("Receptionist's client waits for 'call_offer'...")
 
         try:
@@ -80,11 +68,11 @@ class Sequence_Diagram (unittest.TestCase):
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
     def Request_Information(self, Reception_Database, Reception_ID):
-        logging.info ("Step 9:")
+        logging.info ("Step 9:")        
         logging.info("Requesting (updated) information about reception " + str(Reception_ID))
         Data_On_Reception = Reception_Database.Single(Reception_ID)
         
-        logging.info ("Step 10:")
+        logging.info ("Step 10:")        
         logging.info("Received information: " + pformat (Data_On_Reception))
         
         return Data_On_Reception
@@ -93,7 +81,7 @@ class Sequence_Diagram (unittest.TestCase):
         logging.info ("Step 11:")
 
         Call = Call_Flow_Control.PickupCall()
-        
+
         if Call['destination'] != self.Reception: 
             self.fail ("Unexpected destination in allocated call.")
         if Call['reception_id'] != Reception_ID: 
@@ -144,10 +132,6 @@ class Sequence_Diagram (unittest.TestCase):
                                       token = Receptionist.authtoken)
         Client.start ();
 
-        Stealing_Client = EventListenerThread (uri   = config.call_flow_events,
-                                               token = Call_Stealer.authtoken)
-        Stealing_Client.start ();
-
         try:
             Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                      authtoken = Receptionist.authtoken)
@@ -160,36 +144,26 @@ class Sequence_Diagram (unittest.TestCase):
             logging.info ("Step 5: FreeSWITCH: pauses dial-plan processing for # seconds")
             logging.info ("Step 6: Call-Flow-Control: finds free receptionists")
             Reception_ID = self.Call_Announced (Client = Client)
-            logging.info ("Step 8: Client-N shows call to receptionist-N")
-            Reception_Data = self.Request_Information (Reception_Database = Reception_Database,
+            logging.info ("Step 8a: Client-N->Receptionist-N: Show call in queue")
+            logging.info ("Step 8b: Receptionist-N is busy doing other things the next 16 seconds")
+            sleep(16.0)
+            logging.info ("Step 8c: Receptionist-N->Client-N: state-switch-free")
+            
+            Reception_Data = self.Request_Information (Reception_Database = Reception_Database, 
                                                        Reception_ID       = Reception_ID)
-            
-            logging.info ("- Call stealer interferes")
-            self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Steal_Control,
-                                        Reception_ID      = Reception_ID)
-            Stolen_Call_Information = self.Call_Allocation_Acknowledgement (Client          = Client,
-                                                                            Reception_ID    = Reception_ID,
-                                                                            Receptionist_ID = Call_Stealer.ID)
-            self.Receptionist_Answers (Call_Information      = Stolen_Call_Information,
-                                       Reception_Information = Reception_Data)
-            sleep (0.250)
-            logging.info ("- Now we expect that the call stealer has succeeded")
-            
             self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Flow_Control,
                                         Reception_ID      = Reception_ID)
-            try:
-                Call_Information = self.Call_Allocation_Acknowledgement (Client          = Client,
-                                                                         Reception_ID    = Reception_ID,
-                                                                         Receptionist_ID = Receptionist.ID)
-                raise Incorrectly_Allocated_Call
-            except Incorrectly_Allocated_Call:
-                self.fail("The incoming call was somehow allocated to the late receptionist. :-(")
-            except:
-                logging.info ("We're happy to note that the receptionist - as planned - didn't get the call.")
-                
+            Call_Information = self.Call_Allocation_Acknowledgement (Client          = Client,
+                                                                     Reception_ID    = Reception_ID,
+                                                                     Receptionist_ID = Receptionist.ID)
+            logging.info ("Step 13: Call-Flow-Control->FreeSWITCH: connect call to phone-N")
+            self.Receptionist_Answers (Call_Information      = Call_Information,
+                                       Reception_Information = Reception_Data)
+
+            if not Call_Information['call']['greeting_played']:
+                self.fail ("It appears that the receptionist didn't wait long enough to allow the caller to hear the recorded message.")
+            
             Client.stop()            
-            Stealing_Client.stop()            
         except:
             Client.stop()
-            Stealing_Client.stop()            
             raise
