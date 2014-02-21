@@ -57,12 +57,14 @@ class Sequence_Diagram(unittest.TestCase):
         logging.info("Receptionist's client waits for 'call_offer'...")
 
         try:
-            Client.WaitFor ("call_offer", timeout=0.6)
+            Client.WaitFor ("call_offer")
         except TimeOutReached:
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("Call offer didn't arrive from Call-Flow-Control.")
 
         if not Client.stack_contains(event_type="call_offer", destination=self.Reception):
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("The arrived call offer was not for the expected reception (destination).")
             
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
@@ -93,14 +95,21 @@ class Sequence_Diagram(unittest.TestCase):
         try:
             Client.WaitFor ("call_pickup")
         except TimeOutReached:
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("No 'call_pickup' event arrived from Call-Flow-Control.")
 
         if not Client.stack_contains(event_type="call_pickup", destination=self.Reception):
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("The arrived 'call_pickup' event was not for the expected reception (destination).")
+
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("The arrived 'call_pickup' event was not for the expected reception (reception ID).")
+
         if not Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['assigned_to'] == Receptionist_ID:
-            self.fail (Client.dump_stack())
+            logging.critical (Client.dump_stack ())
+            self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
+
         logging.info ("Call picked up: " + pformat (Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)))
         
         return Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)
