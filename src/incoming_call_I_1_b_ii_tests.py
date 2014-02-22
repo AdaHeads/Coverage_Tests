@@ -1,6 +1,7 @@
 import logging
-from pprint import pformat
-from time   import sleep
+from pprint     import pformat
+from time       import sleep
+from subprocess import call
 
 try:
     import unittest2 as unittest
@@ -37,6 +38,10 @@ class Sequence_Diagram (unittest.TestCase):
         else:
             self.fail ("Invalid authentication token.")
         
+    def Tear_Down (self):
+        self.Caller_Agent.QuitProcess ()
+        self.Receptionist_Agent.QuitProcess ()        
+
     def Caller_Places_Call (self):
         logging.info ("Step 1:")
         
@@ -128,6 +133,11 @@ class Sequence_Diagram (unittest.TestCase):
                 self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
+        call (["killall",       "basic_agent"])
+        sleep (0.1)
+        call (["killall", "-9", "basic_agent"])
+        sleep (1.0) # Letting the system clean up and settle after the previous test run.
+
         Client = EventListenerThread (uri   = config.call_flow_events,
                                       token = Receptionist.authtoken)
         Client.start ();
@@ -164,6 +174,8 @@ class Sequence_Diagram (unittest.TestCase):
                 self.fail ("It appears that the receptionist didn't wait long enough to allow the caller to hear the recorded message.")
             
             Client.stop()            
+            self.Tear_Down ()            
         except:
             Client.stop()
+            self.Tear_Down ()            
             raise

@@ -2,7 +2,7 @@ import logging
 from pprint     import pformat
 from time       import sleep
 from subprocess import call
-
+   
 try:
     import unittest2 as unittest
 except ImportError:
@@ -14,24 +14,41 @@ from event_stack             import EventListenerThread
 from event_stack             import TimeOutReached
 from call_flow_communication import callFlowServer
 from database_reception      import Database_Reception
-from sip_profiles            import agent1102 as Caller 
-from sip_profiles            import agent1105 as Receptionist 
 
 logging.basicConfig (level = logging.INFO)
 
-class Sequence_Diagram (unittest.TestCase):
+class Test_Case (unittest.TestCase):
+    Caller             = None
     Caller_Agent       = None
+    
+    Receptionist       = None
     Receptionist_Agent = None
     Call_Flow_Control  = None
+    Reception_Database = None
     
-    Reception = config.queued_reception
+    Reception          = None
     
-    Next_Step = 1
-    
-    def Setup (self):
+    Next_Step          = 1
+
+    def Clean_Up_And_Settle (self):
+        # Remove any SIP agents started by other test cases: 
+        call (["killall", "basic_agent"])
+        # Let the system have time to clean up and settle after the previous test run:
+        sleep (1.0) 
+
+    def Setup (self, Caller, Receptionist, Reception):
+        self.Next_Step    = 1
+        self.Caller       = Caller
+        self.Receptionist = Receptionist
+        self.Reception    = Reception
+        
         logging.info ("Creating SIP agents...")
-        self.Caller_Agent       = SipAgent (account = SipAccount (username = Caller.username,       password = Caller.password,       sip_port = Caller.sipport))
-        self.Receptionist_Agent = SipAgent (account = SipAccount (username = Receptionist.username, password = Receptionist.password, sip_port = Receptionist.sipport))
+        self.Caller_Agent       = SipAgent (account = SipAccount (username = self.Caller.username,
+                                                                  password = self.Caller.password,
+                                                                  sip_port = self.Caller.sipport))
+        self.Receptionist_Agent = SipAgent (account = SipAccount (username = self.Receptionist.username,
+                                                                  password = self.Receptionist.password,
+                                                                  sip_port = self.Receptionist.sipport))
         
         logging.info ("Connecting receptionist agent...")
         self.Receptionist_Agent.Connect ()
@@ -44,11 +61,14 @@ class Sequence_Diagram (unittest.TestCase):
             logging.info ("Valid token.")
         else:
             self.fail ("Invalid authentication token.")
-        
+
+        self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
+                                                      authtoken = self.Receptionist.authtoken)
+
     def Tear_Down (self):
         self.Caller_Agent.QuitProcess ()
         self.Receptionist_Agent.QuitProcess ()        
-
+             
     def Step (self,
               Message,
               Delay_In_Seconds = 0.0):
@@ -67,7 +87,7 @@ class Sequence_Diagram (unittest.TestCase):
 
     def Caller_Hears_Dialtone (self):
         self.Step (Message = "Caller hears dial-tone...")
-
+        
         logging.info("Caller agent waits for dial-tone...")
         self.Caller_Agent.Wait_For_Dialtone ()
         
@@ -86,10 +106,10 @@ class Sequence_Diagram (unittest.TestCase):
             
         return Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
         
-    def Request_Information (self, Reception_Database, Reception_ID):
+    def Request_Information (self, Reception_ID):
         self.Step (Message = "Requesting (updated) information about reception " + str(Reception_ID))
 
-        Data_On_Reception = Reception_Database.Single (Reception_ID)
+        Data_On_Reception = self.Reception_Database.Single (Reception_ID)
         
         self.Step (Message = "Received information: " + pformat (Data_On_Reception))
         
@@ -130,7 +150,7 @@ class Sequence_Diagram (unittest.TestCase):
         
         return Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)
         
-    def Receptionist_Answers (self, Call_Information, Reception_Information):
+    def Receptionist_Answers (self, Call_Information, Reception_Information, After_Greeting_Played):
         self.Step (Message = "Receptionist answers...")
         
         if Call_Information['call']['greeting_played']:
@@ -143,44 +163,10 @@ class Sequence_Diagram (unittest.TestCase):
                 logging.info ("Receptionist says '" + Reception_Information['greeting'] + "'.")
             except:
                 self.fail ("Reception information missing 'greeting'.")
-        
-    def test_Run (self):
-        call (["killall",       "basic_agent"])
-        sleep (0.1)
-        call (["killall", "-9", "basic_agent"])
-        sleep (1.0) # Letting the system clean up and settle after the previous test run.
 
-        Client = EventListenerThread (uri   = config.call_flow_events,
-                                      token = Receptionist.authtoken)
-        Client.start ();
-
-        try:
-            Reception_Database = Database_Reception (uri       = config.reception_server_uri,
-                                                     authtoken = Receptionist.authtoken)
-            self.Setup ()
-            
-            self.Caller_Places_Call ()
-            self.Caller_Hears_Dialtone ()
-            self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
-            self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
-            self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
-            self.Step (Message = "Call-Flow-Control: finds free receptionists")
-            Reception_ID = self.Call_Announced (Client = Client)
-            self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
-            Reception_Data = self.Request_Information (Reception_Database = Reception_Database, 
-                                                       Reception_ID       = Reception_ID)
-            self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Flow_Control,
-                                        Reception_ID      = Reception_ID)
-            Call_Information = self.Call_Allocation_Acknowledgement (Client          = Client,
-                                                                     Reception_ID    = Reception_ID,
-                                                                     Receptionist_ID = Receptionist.ID)
-            self.Step (Message = "Call-Flow-Control->FreeSWITCH: connect call to phone-N")
-            self.Receptionist_Answers (Call_Information      = Call_Information,
-                                       Reception_Information = Reception_Data)
-            
-            Client.stop()
-            self.Tear_Down ()            
-        except:
-            Client.stop()
-            self.Tear_Down ()            
-            raise
+        if After_Greeting_Played:
+            if not Call_Information['call']['greeting_played']:
+                self.fail ("It appears that the receptionist didn't wait long enough to allow the caller to hear the recorded message.")
+        else:
+            if Call_Information['call']['greeting_played']:
+                self.fail ("It appears that the receptionist waited too long, and allowed the caller to hear the recorded message.")
