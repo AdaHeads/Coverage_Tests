@@ -129,7 +129,12 @@ class EventListenerThread(threading.Thread):
         logging.info ("stopping websocket")
         if self.open:
             self.ws.close();
+            self.open = False
 
+    def __del__(self):
+        self.stop()
+        
+        
 if __name__ == "__main__":
 
     elt = EventListenerThread(uri=config.call_flow_events, token=config.authtoken)
