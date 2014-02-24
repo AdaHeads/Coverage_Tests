@@ -31,8 +31,6 @@ class Test_Case (unittest.TestCase):
     Next_Step          = 1
 
     def Clean_Up_And_Settle (self):
-        # Remove any SIP agents started by other test cases: 
-        call (["killall", "basic_agent"])
         # Let the system have time to clean up and settle after the previous test run:
         sleep (1.0) 
 
@@ -65,7 +63,7 @@ class Test_Case (unittest.TestCase):
         self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                       authtoken = self.Receptionist.authtoken)
 
-    def Tear_Down (self):
+    def tearDown (self):
         self.Caller_Agent.QuitProcess ()
         self.Receptionist_Agent.QuitProcess ()        
              

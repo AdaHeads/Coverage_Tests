@@ -50,7 +50,7 @@ class Sequence_Diagram (unittest.TestCase):
         else:
             self.fail ("Invalid call stealing authentication token.")
         
-    def Tear_Down (self):
+    def tearDown (self):
         self.Caller_Agent.QuitProcess ()
         self.Receptionist_Agent.QuitProcess ()        
 
@@ -145,9 +145,6 @@ class Sequence_Diagram (unittest.TestCase):
                 self.fail ("Reception information missing 'greeting'.")
         
     def test_Run (self):
-        call (["killall",       "basic_agent"])
-        sleep (0.1)
-        call (["killall", "-9", "basic_agent"])
         sleep (1.0) # Letting the system clean up and settle after the previous test run.
 
         Client = EventListenerThread (uri   = config.call_flow_events,
@@ -199,9 +196,7 @@ class Sequence_Diagram (unittest.TestCase):
                 
             Client.stop()            
             Stealing_Client.stop()
-            self.Tear_Down ()            
         except:
             Client.stop()
             Stealing_Client.stop()            
-            self.Tear_Down ()            
             raise
