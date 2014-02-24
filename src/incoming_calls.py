@@ -10,9 +10,8 @@ except ImportError:
 
 import config
 from sip_utils               import SipAgent, SipAccount
-from event_stack             import EventListenerThread
-from event_stack             import TimeOutReached
-from call_flow_communication import callFlowServer
+from event_stack             import EventListenerThread, TimeOutReached
+from call_flow_communication import callFlowServer, Server_404
 from database_reception      import Database_Reception
 
 logging.basicConfig (level = logging.INFO)
@@ -127,7 +126,23 @@ class Test_Case (unittest.TestCase):
     def Offers_To_Answer_Call (self, Call_Flow_Control, Reception_ID):
         self.Step (Message = "Client offers to answer call...")
 
-        Call = Call_Flow_Control.PickupCall()
+        try:
+            Call = Call_Flow_Control.PickupCall ()
+        except Server_404:
+            if self.Client.stack_contains (event_type  = "call_lock",
+                                           destination = self.Reception):
+                try:
+                    self.Client.waitFor (event_type = "call_unlock")
+                    Call = Call_Flow_Control.PickupCall ()
+                except:
+                    logging.critical ("'call_unlock'/pickup call failed.")
+                    raise
+            else:
+                logging.critical ("Pickup call failed - and no 'call_lock' event.")
+                raise
+        except:
+            logging.critical ("Pickup call failed.")
+            raise
 
         if Call['destination'] != self.Reception:
             self.fail ("Unexpected destination in allocated call.")
