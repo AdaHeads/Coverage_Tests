@@ -1,9 +1,9 @@
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1a1
 
 from incoming_calls          import Test_Case
-from sip_profiles            import agent1102 as Caller 
+from sip_profiles            import agent1102 as Caller
 from sip_profiles            import agent1105 as Receptionist
-from config                  import queued_reception as Reception  
+from config                  import queued_reception as Reception
 
 class Sequence_Diagram (Test_Case):
     def test_Run (self):
@@ -29,8 +29,9 @@ class Sequence_Diagram (Test_Case):
             self.Receptionist_Answers (Call_Information      = Call_Information,
                                        Reception_Information = Reception_Data,
                                        After_Greeting_Played = False)
-            
+
             self.Client.stop ()
         except:
-            self.Client.stop ()
+            if not self.Client == None:
+                self.Client.stop ()
             raise
