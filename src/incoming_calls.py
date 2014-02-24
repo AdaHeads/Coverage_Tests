@@ -114,6 +114,32 @@ class Test_Case (unittest.TestCase):
 
         return self.Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
 
+    def Call_Announced_As_Locked (self):
+        self.Step (Message = "Call-Flow-Control sends out 'call_lock'...")
+
+        try:
+            self.Client.WaitFor ("call_lock", timeout = 20.0)
+        except TimeOutReached:
+            logging.critical (self.Client.dump_stack ())
+            self.fail ("No 'call_lock' event arrived from Call-Flow-Control.")
+
+        if not self.Client.stack_contains(event_type="call_lock", destination=self.Reception):
+            logging.critical (self.Client.dump_stack ())
+            self.fail ("The arrived 'call_lock' event was not for the expected reception (destination).")
+
+    def Call_Announced_As_Unlocked (self):
+        self.Step (Message = "Call-Flow-Control sends out 'call_unlock'...")
+
+        try:
+            self.Client.WaitFor ("call_unlock")
+        except TimeOutReached:
+            logging.critical (self.Client.dump_stack ())
+            self.fail ("No 'call_unlock' event arrived from Call-Flow-Control.")
+
+        if not self.Client.stack_contains(event_type="call_unlock", destination=self.Reception):
+            logging.critical (self.Client.dump_stack ())
+            self.fail ("The arrived 'call_unlock' event was not for the expected reception (destination).")
+
     def Request_Information (self, Reception_ID):
         self.Step (Message = "Requesting (updated) information about reception " + str(Reception_ID))
 
