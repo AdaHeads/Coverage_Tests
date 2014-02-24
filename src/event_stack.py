@@ -10,31 +10,31 @@ class TimeOutReached(Exception):
     pass
 
 class EventListenerThread(threading.Thread):
-    
+
     ws           = None
     messageStack = []
     ws_uri       = None
     authtoken    = None
     open         = False
     #messageStack = dict()
-    
+
     def __init__(self, uri, token):
         super(EventListenerThread, self).__init__()
         self.ws_uri = uri
         self.authtoken = token
         self.messageStack = []
         self.open = False
-    
+
     def stack_contains (self, event_type, call_id=None, destination=None):
         for item in self.messageStack:
             if item['event'] == event_type:
                 if call_id == None:
-                    if destination == None: 
+                    if destination == None:
                         return True
                     elif item['call']['destination'] == destination:
                         return True
                 elif item['call']['id'] == call_id:
-                    if destination == None: 
+                    if destination == None:
                         return True
                     elif item['call']['destination'] == destination:
                         return True
@@ -49,7 +49,7 @@ class EventListenerThread(threading.Thread):
                 return;
             sleep (RESOLUTION)
         raise TimeOutReached (event_type + ":" + str (call_id))
-    
+
     def getLatestEvent (self, event_type, call_id=None, destination=None):
         for item in reversed (self.messageStack):
             if item['event'] == event_type:
@@ -67,11 +67,11 @@ class EventListenerThread(threading.Thread):
 
     def Get_Latest_Event (self, Event_Type, Call_ID=None, Destination=None):
         try:
-            for item in reversed (self.messageStack):    
+            for item in reversed (self.messageStack):
                 if item['event'] == Event_Type:
                     if Call_ID == None:
                         logging.info ("Destination: " + item['call']['destination'])
-                        
+
                         if Destination == None:
                             return item
                         elif item['call']['destination'] == Destination:
@@ -84,13 +84,13 @@ class EventListenerThread(threading.Thread):
         except:
             logging.critical ("Exception in Get_Latest_Event: messageStack = " + str (self.messageStack))
             raise
-           
-        logging.info ("Didn't find a match on {Event_Type = " + Event_Type + " & Call_ID = " + str(Call_ID) + " & Destination = " + str(Destination) + "}") 
+
+        logging.info ("Didn't find a match on {Event_Type = " + Event_Type + " & Call_ID = " + str(Call_ID) + " & Destination = " + str(Destination) + "}")
         return None
 
     def dump_stack(self):
         return pformat(self.messageStack)
-    
+
     def on_error(self, ws, error):
         logging.error (error)
 
@@ -101,10 +101,10 @@ class EventListenerThread(threading.Thread):
     def on_close(self, ws):
         logging.info ("Closed websocket")
         self.open = False
-        
+
     def on_message(self, ws, message):
         self.messageStack.append(json.loads(message)['notification'])
-    
+
     def connect (self):
         full_uri= self.ws_uri +  "?token=" + self.authtoken
         try:
@@ -116,7 +116,7 @@ class EventListenerThread(threading.Thread):
             logging.critical("Websocket connected to " + full_uri)
         except:
             logging.critical("Websocket could not connect to " + full_uri)
-    
+
     def run(self):
         try:
             logging.info ("Starting websocket")
@@ -124,13 +124,13 @@ class EventListenerThread(threading.Thread):
             self.ws.run_forever()
         except:
             logging.critical("Run in thread failed!")
-            
+
     def stop(self):
         logging.info ("stopping websocket")
         if self.open:
             self.ws.close();
-        
+
 if __name__ == "__main__":
 
     elt = EventListenerThread(uri=config.call_flow_events, token=config.authtoken)
-    elt.start();        
+    elt.start();
