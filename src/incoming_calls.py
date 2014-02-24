@@ -181,7 +181,7 @@ class Test_Case (unittest.TestCase):
 
         if Call_Information['call']['greeting_played']:
             try:
-                logging.info ("Receptionist says '" + Reception_Information['greeting_after_automatic_answer'] + "'.")
+                logging.info ("Receptionist says '" + Reception_Information['short_greeting'] + "'.")
             except:
                 self.fail ("Reception information missing 'greeting_after_automatic_answer'.")
         else:
