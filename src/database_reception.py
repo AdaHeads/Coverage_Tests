@@ -13,13 +13,13 @@ class Server_401(Exception):
     pass
 
 class Database_Reception:
-    
+
     class Protocol:
         Single                   = "/reception/"
         List                     = Single + "list"
-        Authentication_Parameter = "?token=" 
+        Authentication_Parameter = "?token="
 
-    uri       = None 
+    uri       = None
     http      = httplib2.Http(".cache")
     authtoken = None
 
@@ -32,13 +32,13 @@ class Database_Reception:
         uri_path = "<not declared yet>"
         try:
             uri_path = self.uri + path + self.Protocol.Authentication_Parameter + self.authtoken
-            
+
             if method == 'POST':
                 headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri,
                                                                               'Content-Type' : 'application/x-www-form-urlencoded'}, body=urlencode(params))
             else:
                 headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri})
-                
+
         except:
             logging.error("Reception JSON-database gateway unreachable!")
             raise Server_Unavailable (uri_path)
@@ -46,7 +46,7 @@ class Database_Reception:
             raise Server_404 (method + " " + path + " Response:" + body)
         elif headers['status'] == '401':
             raise Server_401 (method + " " + path + " Response:" + body)
-        
+
         return headers, body
 
     def List (self):
