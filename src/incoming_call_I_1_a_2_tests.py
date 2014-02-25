@@ -8,10 +8,11 @@ from config                  import queued_reception as Reception
 
 import logging
 
+from time                    import sleep
+
 from sip_utils               import SipAgent, SipAccount
 from call_flow_communication import callFlowServer
-
-import config
+from config                  import call_flow_server_uri as Call_Flow_Server_URI
 
 class Sequence_Diagram (Test_Case):
     Call_Stealing_Agent = None
@@ -31,7 +32,7 @@ class Sequence_Diagram (Test_Case):
         self.Call_Stealing_Agent.Connect ()
 
         logging.info ("Creating call stealing Call-Flow-Control connection...")
-        self.Call_Steal_Control = callFlowServer (uri       = config.call_flow_server_uri,
+        self.Call_Steal_Control = callFlowServer (uri       = Call_Flow_Server_URI,
                                                   authtoken = Call_Stealer.authtoken)
 
         logging.info ("Checking call stealing token validity against Call-Flow-Control...")
@@ -65,7 +66,8 @@ class Sequence_Diagram (Test_Case):
             Stolen_Call_Information = self.Call_Allocation_Acknowledgement (Reception_ID    = Reception_ID,
                                                                             Receptionist_ID = Call_Stealer.ID)
             self.Receptionist_Answers (Call_Information      = Stolen_Call_Information,
-                                       Reception_Information = Reception_Data)
+                                       Reception_Information = Reception_Data,
+                                       After_Greeting_Played = False)
             sleep (0.250)
             logging.info ("- Now we expect that the call stealer has succeeded")
 
