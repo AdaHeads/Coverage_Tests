@@ -14,6 +14,9 @@ from sip_utils               import SipAgent, SipAccount
 from call_flow_communication import callFlowServer
 from config                  import call_flow_server_uri as Call_Flow_Server_URI
 
+class Incorrectly_Allocated_Call (Exception):
+    pass
+
 class Sequence_Diagram (Test_Case):
     Call_Stealing_Agent = None
     Call_Steal_Control  = None
