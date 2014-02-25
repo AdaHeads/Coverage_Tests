@@ -37,7 +37,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "Call-Flow-Control->FreeSWITCH: connect call to phone-N")
             self.Receptionist_Answers (Call_Information      = Call_Information,
                                        Reception_Information = Reception_Data,
-                                       After_Greeting_Played = False)
+                                       After_Greeting_Played = True)
 
             self.Client.stop ()
         except:

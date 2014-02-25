@@ -209,7 +209,7 @@ class Test_Case (unittest.TestCase):
             try:
                 logging.info ("Receptionist says '" + Reception_Information['short_greeting'] + "'.")
             except:
-                self.fail ("Reception information missing 'greeting_after_automatic_answer'.")
+                self.fail ("Reception information missing 'short_greeting'.")
         else:
             try:
                 logging.info ("Receptionist says '" + Reception_Information['greeting'] + "'.")
