@@ -17,7 +17,6 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
-            self.Step (Message = "Call-Flow-Control: finds free receptionists")
             Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
@@ -25,6 +24,7 @@ class Sequence_Diagram (Test_Case):
                                         Reception_ID      = Reception_ID)
             Call_Information = self.Call_Allocation_Acknowledgement (Reception_ID    = Reception_ID,
                                                                      Receptionist_ID = Receptionist.ID)
+            self.Step (Message = "Client-N->Receptionist-N: "Information on JSA R&I (with full greeting).")
             self.Step (Message = "Call-Flow-Control->FreeSWITCH: connect call to phone-N")
             self.Receptionist_Answers (Call_Information      = Call_Information,
                                        Reception_Information = Reception_Data,
