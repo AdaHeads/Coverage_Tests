@@ -63,6 +63,8 @@ class Test_Case (unittest.TestCase):
         else:
             self.fail ("Invalid authentication token.")
 
+        self.Call_Flow_Control.HangupAllCalls ()
+        
         self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                       authtoken = self.Receptionist.authtoken)
 
