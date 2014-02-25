@@ -1,6 +1,6 @@
 import logging
 from pprint     import pformat
-from time       import sleep
+from time       import clock, sleep
 from subprocess import call
 
 try:
@@ -28,6 +28,7 @@ class Test_Case (unittest.TestCase):
 
     Reception          = None
 
+    Start_Time         = None
     Next_Step          = 1
 
     def Preconditions (self, Caller, Receptionist, Reception):
@@ -68,6 +69,8 @@ class Test_Case (unittest.TestCase):
         self.Client = EventListenerThread (uri   = config.call_flow_events,
                                            token = Receptionist.authtoken)
         self.Client.start ();
+        
+        self.Start_Time = clock()
 
     def __del__ (self):
         logging.info ("Incoming calls test case: Cleaning up after test...")
@@ -80,7 +83,7 @@ class Test_Case (unittest.TestCase):
     def Step (self,
               Message,
               Delay_In_Seconds = 0.0):
-        logging.info ("Step " + str (self.Next_Step) + ": " + Message)
+        logging.info ("Step " + str (self.Next_Step) + "@" + str (clock() - self.Start_Time) + ": " + Message)
         sleep (Delay_In_Seconds)
         self.Next_Step = self.Next_Step + 1
 
