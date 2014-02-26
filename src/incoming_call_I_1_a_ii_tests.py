@@ -58,32 +58,18 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
-            self.Step (Message = "Call-Flow-Control: finds free receptionists")
             Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
-
             logging.info ("- Call stealer interferes")
             self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Steal_Control,
                                         Reception_ID      = Reception_ID)
-            Stolen_Call_Information = self.Call_Allocation_Acknowledgement (Reception_ID    = Reception_ID,
-                                                                            Receptionist_ID = Call_Stealer.ID)
-            self.Receptionist_Answers (Call_Information      = Stolen_Call_Information,
-                                       Reception_Information = Reception_Data,
-                                       After_Greeting_Played = False)
-            sleep (0.250)
-            logging.info ("- Now we expect that the call stealer has succeeded")
-
+            sleep (0.250) # To assure that client-N will miss the 200 ms time-window for responding
             self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Flow_Control,
                                         Reception_ID      = Reception_ID)
-            try:
-                Call_Information = self.Call_Allocation_Acknowledgement (Reception_ID    = Reception_ID,
-                                                                         Receptionist_ID = Receptionist.ID)
-                raise Incorrectly_Allocated_Call
-            except Incorrectly_Allocated_Call:
-                self.fail("The incoming call was somehow allocated to the late receptionist. :-(")
-            except:
-                logging.info ("We're happy to note that the receptionist - as planned - didn't get the call.")
+            Call_Information = self.Call_Allocation_Acknowledgement (Reception_ID    = Reception_ID,
+                                                                     Receptionist_ID = Call_Stealer.ID)
+            self.Step (Message = "Client-N->Receptionist-N: Un-queue: JSA R&I.")
 
             self.Client.stop ()
         except:
