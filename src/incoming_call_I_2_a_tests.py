@@ -18,7 +18,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
             self.Step (Message = "Call-Flow-Control: finds free receptionists")
-            Reception_ID = self.Call_Announced ()
+            Call_ID, Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)", Delay_In_Seconds = 2.0)
             self.Step (Message = "Receptionist-N->Client-N: take call")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
