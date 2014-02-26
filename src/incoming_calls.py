@@ -1,7 +1,6 @@
 import logging
 from pprint     import pformat
 from time       import clock, sleep
-from subprocess import call
 
 try:
     import unittest2 as unittest
@@ -70,7 +69,7 @@ class Test_Case (unittest.TestCase):
 
         self.Client = EventListenerThread (uri   = config.call_flow_events,
                                            token = Receptionist.authtoken)
-        self.Client.start ();
+        self.Client.start ()
         
         self.Start_Time = clock()
 
@@ -160,19 +159,23 @@ class Test_Case (unittest.TestCase):
         try:
             Call = Call_Flow_Control.PickupCall ()
         except Server_404:
+            logging.info ("Pick-up call failed.  We check for a 'call_lock' event.")
+
             if self.Client.stack_contains (event_type  = "call_lock",
                                            destination = self.Reception):
+                logging.info ("Found a 'call_lock' event.  Wait for a 'call_unlock' event...")
+
                 try:
                     self.Client.waitFor (event_type = "call_unlock")
+                    logging.info ("Found a 'call_unlock' event.  Attempt to pick-up the call again...")
                     Call = Call_Flow_Control.PickupCall ()
+                    logging.info ("Got the call this time.")
                 except:
-                    logging.critical ("'call_unlock'/pickup call failed.")
-                    raise
+                    logging.info ("'call_unlock'/pickup call failed.")
             else:
-                logging.critical ("Pickup call failed - and no 'call_lock' event.")
-                raise
+                logging.info ("Did not find a 'call_lock' event.  No call to pick-up.")
         except:
-            logging.critical ("Pickup call failed.")
+            logging.critical ("Pickup call failed in an undocumented manner.")
             raise
 
         if Call['destination'] != self.Reception:
