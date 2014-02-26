@@ -10,7 +10,7 @@ except ImportError:
 import config
 from sip_utils               import SipAgent, SipAccount
 from event_stack             import EventListenerThread, TimeOutReached
-from call_flow_communication import callFlowServer, Server_404
+from call_flow_communication import callFlowServer
 from database_reception      import Database_Reception
 
 logging.basicConfig (level = logging.INFO)
@@ -88,19 +88,23 @@ class Test_Case (unittest.TestCase):
         sleep (Delay_In_Seconds)
         self.Next_Step = self.Next_Step + 1
 
+    def Log (self,
+             Message):
+        logging.info ("     " + str (self.Next_Step - 1) + "@" + str (clock() - self.Start_Time) + ": " + Message)
+
     def Caller_Places_Call (self):
         self.Step (Message = "Caller places call...")
 
-        logging.info("Connecting caller agent...")
+        self.Log (Message = "Connecting caller agent...")
         self.Caller_Agent.Connect ()
 
-        logging.info("Dialling through caller agent...")
+        self.Log (Message = "Dialling through caller agent...")
         self.Caller_Agent.Dial (self.Reception)
 
     def Caller_Hears_Dialtone (self):
         self.Step (Message = "Caller hears dial-tone...")
 
-        logging.info("Caller agent waits for dial-tone...")
+        self.Log (Message = "Caller agent waits for dial-tone...")
         self.Caller_Agent.Wait_For_Dialtone ()
 
     def Call_Announced (self):
@@ -116,36 +120,44 @@ class Test_Case (unittest.TestCase):
             logging.critical (self.Client.dump_stack ())
             self.fail ("The arrived call offer was not for the expected reception (destination).")
 
-        return self.Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
+        return self.Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['id'],\
+               self.Client.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
 
-    def Call_Announced_As_Locked (self):
+    def Call_Announced_As_Locked (self, Call_ID):
         self.Step (Message = "Call-Flow-Control sends out 'call_lock'...")
 
         try:
-            self.Client.WaitFor ("call_lock", timeout = 20.0)
+            self.Client.WaitFor (event_type = "call_lock",
+                                 call_id    = Call_ID,
+                                 timeout    = 20.0)
         except TimeOutReached:
             logging.critical (self.Client.dump_stack ())
             self.fail ("No 'call_lock' event arrived from Call-Flow-Control.")
 
-        if not self.Client.stack_contains(event_type="call_lock", destination=self.Reception):
+        if not self.Client.stack_contains (event_type  = "call_lock",
+                                           destination = self.Reception,
+                                           call_id     = Call_ID):
             logging.critical (self.Client.dump_stack ())
             self.fail ("The arrived 'call_lock' event was not for the expected reception (destination).")
 
-    def Call_Announced_As_Unlocked (self):
+    def Call_Announced_As_Unlocked (self, Call_ID):
         self.Step (Message = "Call-Flow-Control sends out 'call_unlock'...")
 
         try:
-            self.Client.WaitFor ("call_unlock")
+            self.Client.WaitFor (event_type = "call_unlock",
+                                 call_id    = Call_ID)
         except TimeOutReached:
             logging.critical (self.Client.dump_stack ())
             self.fail ("No 'call_unlock' event arrived from Call-Flow-Control.")
 
-        if not self.Client.stack_contains(event_type="call_unlock", destination=self.Reception):
+        if not self.Client.stack_contains (event_type  = "call_unlock",
+                                           destination = self.Reception,
+                                           call_id     = Call_ID):
             logging.critical (self.Client.dump_stack ())
             self.fail ("The arrived 'call_unlock' event was not for the expected reception (destination).")
 
     def Request_Information (self, Reception_ID):
-        self.Step (Message = "Requesting (updated) information about reception " + str(Reception_ID))
+        self.Step (Message = "Requesting (updated) information about reception " + str (Reception_ID))
 
         Data_On_Reception = self.Reception_Database.Single (Reception_ID)
 
@@ -153,74 +165,46 @@ class Test_Case (unittest.TestCase):
 
         return Data_On_Reception
 
-    def Offers_To_Answer_Call (self, Call_Flow_Control, Reception_ID):
+    def Offer_To_Pick_Up_Call (self, Call_Flow_Control, Call_ID):
         self.Step (Message = "Client offers to answer call...")
 
         try:
-            Call = Call_Flow_Control.PickupCall ()
-        except Server_404:
-            logging.info ("Pick-up call failed.  We check for a 'call_lock' event.")
-
-            if self.Client.stack_contains (event_type  = "call_lock",
-                                           destination = self.Reception):
-                logging.info ("Found a 'call_lock' event.  Wait for a 'call_unlock' event...")
-
-                try:
-                    self.Client.waitFor (event_type = "call_unlock")
-                    logging.info ("Found a 'call_unlock' event.  Attempt to pick-up the call again...")
-                    Call = Call_Flow_Control.PickupCall ()
-                    logging.info ("Got the call this time.")
-                except:
-                    logging.info ("'call_unlock'/pickup call failed.")
-            else:
-                logging.info ("Did not find a 'call_lock' event.  No call to pick-up.")
+            Call_Flow_Control.PickupCall (call_id = Call_ID)
         except:
-            logging.critical ("Pickup call failed in an undocumented manner.")
-            raise
+            self.Log (Message = "Pick-up call returned an error of some kind.")
 
-        if Call['destination'] != self.Reception:
-            self.fail ("Unexpected destination in allocated call.")
-        if Call['reception_id'] != Reception_ID:
-            self.fail ("Unexpected reception ID in allocated call.")
-
-    def Call_Allocation_Acknowledgement (self, Reception_ID, Receptionist_ID):
+    def Call_Allocation_Acknowledgement (self, Call_ID, Receptionist_ID):
         self.Step (Message = "Receptionist's client waits for 'call_pickup'...")
 
         try:
-            self.Client.WaitFor ("call_pickup")
+            self.Client.WaitFor (event_type = "call_pickup",
+                                 call_id    = Call_ID)
         except TimeOutReached:
             logging.critical (self.Client.dump_stack ())
             self.fail ("No 'call_pickup' event arrived from Call-Flow-Control.")
 
-        if not self.Client.stack_contains(event_type="call_pickup", destination=self.Reception):
-            logging.critical (self.Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected reception (destination).")
+        Event = self.Client.Get_Latest_Event (Event_Type = "call_pickup",
+                                              Call_ID    = Call_ID)
 
-        if not self.Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['reception_id'] == Reception_ID:
-            logging.critical (self.Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected reception (reception ID).")
-
-        if not self.Client.Get_Latest_Event (Event_Type="call_pickup", Destination=self.Reception)['call']['assigned_to'] == Receptionist_ID:
+        if not Event['call']['assigned_to'] == Receptionist_ID:
             logging.critical (self.Client.dump_stack ())
             self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
 
-        logging.info ("Call picked up: " + pformat (self.Client.Get_Latest_Event (Event_Type  = "call_pickup",
-                                                                                  Destination = self.Reception)))
+        self.Log (Message = "Call picked up: " + pformat (Event))
 
-        return self.Client.Get_Latest_Event (Event_Type  = "call_pickup",
-                                        Destination = self.Reception)
+        return Event
 
     def Receptionist_Answers (self, Call_Information, Reception_Information, After_Greeting_Played):
         self.Step (Message = "Receptionist answers...")
 
         if Call_Information['call']['greeting_played']:
             try:
-                logging.info ("Receptionist says '" + Reception_Information['short_greeting'] + "'.")
+                self.Log (Message = "Receptionist says '" + Reception_Information['short_greeting'] + "'.")
             except:
                 self.fail ("Reception information missing 'short_greeting'.")
         else:
             try:
-                logging.info ("Receptionist says '" + Reception_Information['greeting'] + "'.")
+                self.Log (Message = "Receptionist says '" + Reception_Information['greeting'] + "'.")
             except:
                 self.fail ("Reception information missing 'greeting'.")
 
