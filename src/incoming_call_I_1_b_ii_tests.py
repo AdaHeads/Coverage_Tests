@@ -1,4 +1,4 @@
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1bii
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1bii-1
 
 from incoming_calls          import Test_Case
 from sip_profiles            import agent1106 as Caller
@@ -17,12 +17,19 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
-            self.Step (Message = "Call-Flow-Control: finds free receptionists")
-            Reception_ID = self.Call_Announced ()
+            Call_ID, Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
-            self.Step (Message = "Receptionist-N: Busy doing other things the next 16 seconds", Delay_In_Seconds = 16.0)
+            self.Step (Message = "Receptionist-N: Busy doing other things (allowing FreeSWITCH to time out).")
+            self.Step (Message = "FreeSWITCH: pause timed out")
+            self.Step (Message = "FreeSWITCH->Call-Flow-Control: queued-unavailable: +45 21 49 08 04")
+            self.Step (Message = "FreeSWITCH->Caller: De har ringet til JSA R&I. Vent venligst.")
+            self.Call_Announced_As_Locked (Call_ID = Call_ID)
+            self.Step (Message = "Client-N->Receptionist-N: Queue: JSA R&I (optaget)")
+            self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
+            self.Step (Message = "FreeSWITCH->Caller: pause music")
+            self.Call_Announced_As_Unlocked (Call_ID = Call_ID)
+            self.Step (Message = "Client-N->Receptionist-N: Queue: JSA R&I (venter)")
             self.Step (Message = "Receptionist-N->Client-N: state-switch-free")
-
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
             self.Offers_To_Answer_Call (Call_Flow_Control = self.Call_Flow_Control,
                                         Reception_ID      = Reception_ID)
@@ -38,3 +45,4 @@ class Sequence_Diagram (Test_Case):
             if not self.Client == None:
                 self.Client.stop ()
             raise
+
