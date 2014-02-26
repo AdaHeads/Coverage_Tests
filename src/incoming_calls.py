@@ -183,12 +183,20 @@ class Test_Case (unittest.TestCase):
             logging.critical (self.Client.dump_stack ())
             self.fail ("No 'call_pickup' event arrived from Call-Flow-Control.")
 
-        Event = self.Client.Get_Latest_Event (Event_Type = "call_pickup",
-                                              Call_ID    = Call_ID)
-
-        if not Event['call']['assigned_to'] == Receptionist_ID:
+        try:
+            Event = self.Client.Get_Latest_Event (Event_Type = "call_pickup",
+                                                  Call_ID    = Call_ID)
+        except:
             logging.critical (self.Client.dump_stack ())
-            self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
+            self.fail ("Could not extract the received 'call_pickup' event from the Call-Flow-Control client.")
+
+        try:
+            if not Event['call']['assigned_to'] == Receptionist_ID:
+                logging.critical (self.Client.dump_stack ())
+                self.fail ("The arrived 'call_pickup' event was not for the expected receptionist (receptionist ID).")
+        except:
+            logging.critical (self.Client.dump_stack ())
+            raise
 
         self.Log (Message = "Call picked up: " + pformat (Event))
 
