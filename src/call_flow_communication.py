@@ -68,12 +68,14 @@ class callFlowServer:
         return json.loads (body)
 
     def HangupCall (self, call_id):
-        headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
+        try:
+            headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
 
-        return json.loads (body)
+            return json.loads (body)
+        except:
+            logging.error ("Hanging up " + str (call_id) + " didn't succeed.  We assume that the call was terminated by other means.")
 
     def HangupAllCalls (self):
-
         for call in self.CallList().Calls():
             self.HangupCall(call['id'])
 

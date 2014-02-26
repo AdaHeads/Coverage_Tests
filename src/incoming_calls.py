@@ -1,7 +1,6 @@
 import logging
 from pprint     import pformat
-from time       import sleep
-from subprocess import call
+from time       import clock, sleep
 
 try:
     import unittest2 as unittest
@@ -28,6 +27,7 @@ class Test_Case (unittest.TestCase):
 
     Reception          = None
 
+    Start_Time         = None
     Next_Step          = 1
 
     def Preconditions (self, Caller, Receptionist, Reception):
@@ -62,12 +62,16 @@ class Test_Case (unittest.TestCase):
         else:
             self.fail ("Invalid authentication token.")
 
+        self.Call_Flow_Control.HangupAllCalls ()
+        
         self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                       authtoken = self.Receptionist.authtoken)
 
         self.Client = EventListenerThread (uri   = config.call_flow_events,
                                            token = Receptionist.authtoken)
-        self.Client.start ();
+        self.Client.start ()
+        
+        self.Start_Time = clock()
 
     def __del__ (self):
         logging.info ("Incoming calls test case: Cleaning up after test...")
@@ -80,7 +84,7 @@ class Test_Case (unittest.TestCase):
     def Step (self,
               Message,
               Delay_In_Seconds = 0.0):
-        logging.info ("Step " + str (self.Next_Step) + ": " + Message)
+        logging.info ("Step " + str (self.Next_Step) + "@" + str (clock() - self.Start_Time) + ": " + Message)
         sleep (Delay_In_Seconds)
         self.Next_Step = self.Next_Step + 1
 
@@ -155,19 +159,23 @@ class Test_Case (unittest.TestCase):
         try:
             Call = Call_Flow_Control.PickupCall ()
         except Server_404:
+            logging.info ("Pick-up call failed.  We check for a 'call_lock' event.")
+
             if self.Client.stack_contains (event_type  = "call_lock",
                                            destination = self.Reception):
+                logging.info ("Found a 'call_lock' event.  Wait for a 'call_unlock' event...")
+
                 try:
                     self.Client.waitFor (event_type = "call_unlock")
+                    logging.info ("Found a 'call_unlock' event.  Attempt to pick-up the call again...")
                     Call = Call_Flow_Control.PickupCall ()
+                    logging.info ("Got the call this time.")
                 except:
-                    logging.critical ("'call_unlock'/pickup call failed.")
-                    raise
+                    logging.info ("'call_unlock'/pickup call failed.")
             else:
-                logging.critical ("Pickup call failed - and no 'call_lock' event.")
-                raise
+                logging.info ("Did not find a 'call_lock' event.  No call to pick-up.")
         except:
-            logging.critical ("Pickup call failed.")
+            logging.critical ("Pickup call failed in an undocumented manner.")
             raise
 
         if Call['destination'] != self.Reception:
