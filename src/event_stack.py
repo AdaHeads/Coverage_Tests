@@ -22,14 +22,17 @@ class EventListenerThread(threading.Thread):
         super(EventListenerThread, self).__init__()
         self.ws_uri = uri
         self.authtoken = token
-        self.messageStack = []
         self.open = False
+        self.flush()
+
+    def flush(self):
+        self.messageStack = []
 
     def stack_contains (self, event_type, call_id=None, destination=None):
         for item in self.messageStack:
             if item['event'] == event_type:
-                if call_id == None:
-                    if destination == None:
+                if call_id is None:
+                    if destination is None:
                         return True
                     elif item['call']['destination'] == destination:
                         return True
@@ -40,8 +43,19 @@ class EventListenerThread(threading.Thread):
                         return True
         return False
 
+    def WaitForOpen (self, timeout=10.0):
+        RESOLUTION = 0.1
+        timeSlept = 0.0;
+        while timeSlept < timeout:
+            logging.info ("Waiting")
+            timeSlept += RESOLUTION
+            if self.open:
+                return;
+            sleep (RESOLUTION)
+        raise TimeOutReached ("Did not open websocket in a timely manner")
+
     def WaitFor (self, event_type, call_id=None, timeout=10.0):
-        RESOLUTION = 0.5
+        RESOLUTION = 0.1
         timeSlept = 0.0;
         while timeSlept < timeout:
             timeSlept += RESOLUTION
@@ -111,7 +125,7 @@ class EventListenerThread(threading.Thread):
                                               on_error = self.on_error,
                                               on_close = self.on_close)
             self.ws.on_open = self.on_open
-            logging.critical("Websocket connected to " + full_uri)
+            logging.info("Websocket connected to " + full_uri)
         except:
             logging.critical("Websocket could not connect to " + full_uri)
 
@@ -124,7 +138,6 @@ class EventListenerThread(threading.Thread):
             logging.critical("Run in thread failed!")
 
     def stop(self):
-        logging.info ("stopping websocket")
         if self.open:
             self.ws.close();
             self.open = False
@@ -137,3 +150,4 @@ if __name__ == "__main__":
 
     elt = EventListenerThread(uri=config.call_flow_events, token=config.authtoken)
     elt.start();
+    elt.stop();

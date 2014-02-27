@@ -1,7 +1,10 @@
 import config
 import logging
+import time
 
 from subprocess import Popen, PIPE
+
+logging.basicConfig(level=logging.INFO)
 
 class Dial_Failed(Exception):
     pass
@@ -25,6 +28,7 @@ class SipAccount():
     def toString(self):
         return self.username + "@" + self.server + ":" + self.sip_port
 
+#TODO: Throttle the rate of commands being sent per second, as the SIP process tends to choke on them.
 class SipAgent:
     
     account    = None
@@ -50,8 +54,8 @@ class SipAgent:
                 
         # Waint for the account to become ready.
         self.__waitFor("+READY")
-        logging.info("SIP agent " + self.account.toString() + " is ready.");
-            
+        self.Register()
+
         return self
     
     def Dial (self, extension, server=None):
@@ -61,9 +65,19 @@ class SipAgent:
         self.__process.stdin.write("dsip:"+extension+ "@" + server + "\n")
         self.__waitFor("+OK")
         logging.info("Dialing " + extension+ "@" + server);
-                
+
+    def Unregister (self):
+        self.__process.stdin.write("u\n");
+        self.__waitFor("+OK")
+        logging.info("SIP agent " + self.account.toString() + " unregistered.");
+
+    def Register (self):
+        self.__process.stdin.write("r\n");
+        self.__waitFor("+OK")
+        logging.info("SIP agent " + self.account.toString() + " registered.");
+
     def HangupAllCalls(self):
-        self.__process.stdin.write("h\n"); # Hangup
+        self.__process.stdin.write("h\n");
         self.__waitFor("+OK")
 
     def Wait_For_Dialtone(self):
@@ -74,14 +88,38 @@ class SipAgent:
         self.HangupAllCalls()
         self.__process.stdin.write("q\n"); # Quit
         self.__waitFor("+OK")
-        self.__process.wait()
+        try:
+            self.__process.wait()
+        except AttributeError: # Process is already closed.
+            pass
     
     def __waitFor(self, expectedLine):
         got_reply = False
         while not got_reply:
             line = self.__process.stdout.readline()
             if expectedLine in line:
-                got_reply = True                
+                got_reply = True
             elif "-ERROR" in line:
                 raise Process_Failure ("Process returned:" + line) 
-        
+            elif line == "":
+                raise Process_Failure ("Process returned empty line, which " + \
+                                       "indicates an internal failure in the SIP process. " + \
+                                       "Inserting delays between Register/Unregister calls remedies it.")
+
+
+    def __send(self, command):
+        self.__process.stdin.write(command + "\n");
+        got_reply = False
+
+if __name__ == "__main__":
+
+    agent = SipAgent(account=SipAccount(username="1100",
+                                        password="1234",
+                                        sip_port=6060))
+    agent.Connect()
+
+    agent.Register()
+    time.sleep(0.05)
+    agent.Unregister()
+    time.sleep(0.05)
+    agent.Register()

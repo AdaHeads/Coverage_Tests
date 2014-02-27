@@ -3,8 +3,10 @@ from time import sleep
 
 import config
 from call_flow_communication import callFlowServer
-from sip_profiles import agent1103
+from sip_profiles import agent1103 as anyAgent
 from sip_utils import SipAccount, SipAgent
+from agent_pool import AgentConfigs, AgentPool
+from static_agent_pools import Receptionsts
 
 try:
     import unittest2 as unittest
@@ -15,26 +17,31 @@ logging.basicConfig(level=logging.INFO)
 
 class PeerTests(unittest.TestCase):
 
-    cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=agent1103.authtoken)
-    # Tests whether a call-flow server responds correctly to peer registrations
-    # 
     def testRegisterAgent(self):
-        sipagent = SipAgent(account=SipAccount(username=agent1103.username, password=agent1103.password, sip_port=agent1103.sipport))
-    
-        peer = self.cfs.peerList().locatePeer(agent1103.username)
-        counter = 0
-        while peer ['registered'] and counter < 10:
-            sleep (1.000)
-            peer = self.cfs.peerList().locatePeer(agent1103.username)
-            counter = counter + 1
-        
-        sipagent.Connect()
-        peer = self.cfs.peerList().locatePeer(agent1103.username)
-        if not peer ['registered']:
-            self.fail("Peer does not seem to be registered: " + str (peer))
-        
-        sipagent.QuitProcess()
-        peer = self.cfs.peerList().locatePeer(agent1103.username)
-        if peer ['registered']:
-            self.fail("Peer is still registered: " + str (peer))
-    
+        a1 = None
+        try: #py.test src/peer_tests.py
+
+            a1 = Receptionsts.Aquire()
+            a1.SIP_Phone.Unregister()
+            sleep(0.05)
+
+            a1.Event_Stack.flush()
+            a1.SIP_Phone.Register()
+            a1.Event_Stack.WaitFor(event_type="peer_state")
+
+            peer = a1.Call_Control.peerList().locatePeer(a1.username)
+            if not peer ['registered']:
+                self.fail (a1.username + " was expected to be registered at this point")
+
+            a1.SIP_Phone.Unregister()
+            peer = a1.Call_Control.peerList().locatePeer(a1.username)
+
+            if peer ['registered']:
+                self.fail("Peer is still registered: " + str (peer))
+
+            logging.info ("Waiting")
+            Receptionsts.Release(a1)
+        except:
+            if not a1 is None:
+                Receptionsts.Release(a1)
+            raise
