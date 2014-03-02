@@ -1,3 +1,4 @@
+
 import websocket
 import logging
 import json
@@ -11,6 +12,7 @@ class TimeOutReached(Exception):
 
 class EventListenerThread(threading.Thread):
 
+    log          = None
     ws           = None
     messageStack = []
     ws_uri       = None
@@ -19,6 +21,7 @@ class EventListenerThread(threading.Thread):
     #messageStack = dict()
 
     def __init__(self, uri, token):
+        self.log = self.log = logging.getLogger(self.__class__.__name__)
         super(EventListenerThread, self).__init__()
         self.ws_uri = uri
         self.authtoken = token
@@ -43,13 +46,13 @@ class EventListenerThread(threading.Thread):
                         return True
         return False
 
-    def WaitForOpen (self, timeout=10.0):
+    def WaitForOpen (self, timeout=3.0):
         RESOLUTION = 0.1
         timeSlept = 0.0;
         while timeSlept < timeout:
-            logging.info ("Waiting")
             timeSlept += RESOLUTION
             if self.open:
+
                 return;
             sleep (RESOLUTION)
         raise TimeOutReached ("Did not open websocket in a timely manner")
@@ -94,24 +97,24 @@ class EventListenerThread(threading.Thread):
                         elif item['call']['destination'] == Destination:
                             return item
         except:
-            logging.critical ("Exception in Get_Latest_Event: messageStack = " + str (self.messageStack))
+            self.log.critical ("Exception in Get_Latest_Event: messageStack = " + str (self.messageStack))
             raise
 
-        logging.info ("Didn't find a match on {Event_Type = " + Event_Type + " & Call_ID = " + str(Call_ID) + " & Destination = " + str(Destination) + "}")
+        self.log.info ("Didn't find a match on {Event_Type = " + Event_Type + " & Call_ID = " + str(Call_ID) + " & Destination = " + str(Destination) + "}")
         return None
 
     def dump_stack(self):
         return pformat(self.messageStack)
 
     def on_error(self, ws, error):
-        logging.error (error)
+        self.log.error ("Unspecified error:" + str(error))
 
     def on_open (self, ws):
-        logging.info ("Opened websocket")
+        self.log.info ("Opened websocket")
         self.open = True
 
     def on_close(self, ws):
-        logging.info ("Closed websocket")
+        self.log.info ("Closed websocket")
         self.open = False
 
     def on_message(self, ws, message):
@@ -125,17 +128,17 @@ class EventListenerThread(threading.Thread):
                                               on_error = self.on_error,
                                               on_close = self.on_close)
             self.ws.on_open = self.on_open
-            logging.info("Websocket connected to " + full_uri)
+            self.log.info("Websocket connected to " + full_uri)
         except:
-            logging.critical("Websocket could not connect to " + full_uri)
+            self.log.critical("Websocket could not connect to " + full_uri)
 
     def run(self):
         try:
-            logging.info ("Starting websocket")
+            self.log.info ("Starting websocket")
             self.connect()
             self.ws.run_forever()
         except:
-            logging.critical("Run in thread failed!")
+            self.log.critical("Run in thread failed!")
 
     def stop(self):
         if self.open:
