@@ -1,5 +1,8 @@
 import json
 
+class NotFound(Exception):
+    pass
+
 class CallList ():
 
     __JSONlist = dict()
@@ -16,15 +19,19 @@ class CallList ():
             return len(self.__JSONlist['calls'])
 
     def toString(self):
+        return self.to_string()
+
+    def to_string(self):
         return json.dumps(self.__JSONlist)
 
     def Calls(self):
         return self.__JSONlist['calls']
 
     def locateCall (self, call_id):
-        foundCall = None
         for call in self.__JSONlist['calls']:
-            if call_id in call:
-                foundCall = call
-        return foundCall
+            if call['id'] == call_id:
+                return call
+        raise NotFound
+
+
 
