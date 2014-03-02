@@ -1,163 +1,169 @@
 from sip_utils import SipAccount, SipAgent
-from call_flow_communication import callFlowServer
+from call_flow_communication import callFlowServer, Server_404
 from event_stack import EventListenerThread
-import config
 import logging
-import time
+import config
 
-logging.basicConfig(level=logging.INFO)
+from sip_profiles import ReceptionistConfigs, CustomerConfigs
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
-AgentConfigs = [
-                {
-                 'username'     : '1100',
-                 'password'     : '1234',
-                 'sipport'      : 5160,
-                 'authtoken'    : "feedabbadeadbeef0",
-                 'ID'           : 10,
-                 'receptionist' : True
-                },
-                 {
-                  'username'  : '1101',
-                  'password'  : '1234',
-                  'sipport'   : 5161,
-                  'authtoken' : "feedabbadeadbeef1",
-                  'ID'        : 11,
-                  'receptionist' : True
-                 },
-                 {
-                  'username'  : '1102',
-                  'password'  : '1234',
-                  'sipport'   : 5162,
-                  'authtoken' : "feedabbadeadbeef2",
-                  'ID'        : 12,
-                  'receptionist' : True
-                 }
-                ]
-
-CustomerConfigs = [
-                {
-                 'username'  : '1200',
-                 'password'  : '1234',
-                 'sipport'   : 5260,
-                },
-                 {
-                  'username'  : '1201',
-                  'password'  : '1234',
-                  'sipport'   : 5261,
-                 }
-                ]
-
-
-class No_Free_Agents(Exception):
+class NoFreeAgents(Exception):
     pass
 
-class Not_Found(Exception):
+
+class NotFound(Exception):
     pass
 
 class Agent:
     
-    available    = True
-    username     = None
-    server       = None
-    sip_port     = None 
-    SIP_Phone    = None
-    Call_Control = None
-    Event_Stack  = None
-    Receptionist = False
-    agent_pool  = None
+    log = logging.getLogger(__name__ + ".Agent")
+    available = True
+    username = None
+    server = None
+    sip_port = None
+    sip_phone = None
+    call_control = None
+    event_stack = None
+    receptionist = False
+    agent_pool = None
     
-    def __init__(self, username, password, server=config.pbx, sip_port=5060, Receptionist=False, authToken=None, pool=None):
+    def __init__(self, username, password,
+                 server=config.pbx,
+                 sip_port=5060,
+                 receptionist=False,
+                 auth_token=None,
+                 pool=None):
+
         self.username     = username
         self.server       = server
-        self.sip_port     = str (sip_port)  # This should probably be kept as int, by we really don't need the int further along the way.
-        self.agent_pool   = pool;
-        self.Receptionist = Receptionist
+        self.sip_port     = str(sip_port) # TODO Convert to int all the way.
+        self.agent_pool   = pool
+        self.receptionist = receptionist
 
-        self.SIP_Phone    = SipAgent(account=SipAccount(username=self.username, password=password, sip_port=self.sip_port))
-        self.SIP_Phone.Connect()
+        self.sip_phone    = SipAgent(account=SipAccount(username=self.username,
+                                                        password=password,
+                                                        sip_port=self.sip_port))
 
-        if self.Receptionist:
-            self.Call_Control = callFlowServer(uri=config.call_flow_server_uri, authtoken=authToken)
+        if self.receptionist:
+            self.call_control = callFlowServer(uri=config.call_flow_server_uri, authtoken=auth_token)
 
-    def toString(self):
+    def to_string(self):
         return self.username + "@" + self.server + ":" + self.sip_port + \
-        " available: " + str (self.available) + " Receptionist: " + str(self.Receptionist)
+            " available: " + str(self.available) + " Receptionist: " + str(self.receptionist)
 
-    def Release(self):
+    def pickup_call_wait_for_lock(self, call_id):
+        try:
+            self.call_control.PickupCall(call_id=call_id)
+        except Server_404:
+            if not self.event_stack.stack_contains (event_type = "call_lock",
+                                                    call_id    = call_id):
+                raise AssertionError ("Expected to find call_lock event in " + \
+                                      str(self.event_stack.dump_stack()))
+
+            self.event_stack.WaitFor (event_type = "call_unlock",
+                                      call_id    = call_id)
+
+            self.call_control.PickupCall(call_id=call_id)
+
+        self.event_stack.WaitFor(event_type = "call_pickup",
+                                 call_id    =  call_id)
+
+    def prepare(self):
+        if not self.sip_phone.Connected():
+            self.sip_phone.Connect()
+
+        if self.receptionist: # Customers need not register because they should hit the external dialplan context.
+            self.sip_phone.Register()
+
+        # If we are preparing a receptionist, then we need to start an event stack and a call-flow connection.
+        if self.receptionist and self.event_stack is None:
+            self.event_stack = EventListenerThread(uri=config.call_flow_events, token=self.call_control.authtoken)
+            self.event_stack.start()
+            self.event_stack.WaitForOpen()
+
+        self.log.info ("Acquired" + self.to_string())
+        self.available   = False
+
+        return self
+
+    def release(self):
+        if self.sip_phone.Connected():
+            self.sip_phone.HangupAllCalls()
+            if self.receptionist: # Customers need not register because they should hit the external dialplan context.
+                self.sip_phone.Unregister()
+
         if not self.agent_pool is None:
-            self.agent_pool.Release(self)
+            self.agent_pool.release(self)
 
     def __del__(self):
-        self.SIP_Phone.QuitProcess()
-        if not self.Event_Stack is None:
-            self.Event_Stack.stop()
+        self.sip_phone.QuitProcess()
+        if not self.event_stack is None:
+            self.event_stack.stop()
 
 class AgentPool:
     
-    Agents = []
-    
-    def __init__(self, agentConfigs=[]):
-        for config in agentConfigs:
-            logging.info (config)
+    agents = None
+    log = logging.getLogger(__name__ + ".AgentPool")
 
-            if 'ID' in config:
-                self.Agents.append(Agent(username=config['username'],
-                                         password=config['password'],
-                                         authToken=config['authtoken'],
-                                         sip_port=config['sipport'],
-                                         Receptionist=True,
+
+    def __init__(self, agent_configs=None):
+
+        if not agent_configs: agent_configs = []
+        self.agents = []
+
+        for agent_config in agent_configs:
+            if 'ID' in agent_config:
+                self.agents.append(Agent(username=agent_config['username'],
+                                         password=agent_config['password'],
+                                         auth_token=agent_config['authtoken'],
+                                         sip_port=agent_config['sipport'],
+                                         receptionist=True,
                                          pool=self))
             else:
-                self.Agents.append(Agent(username=config['username'],
-                                         password=config['password'],
-                                         sip_port=config['sipport'],
+                self.agents.append(Agent(username=agent_config['username'],
+                                         password=agent_config['password'],
+                                         sip_port=agent_config['sipport'],
                                          pool=self))
 
-    def DumpInformation (self):
-        pass
-        
-    def Aquire (self):
-        for agent in self.Agents:
+    def request(self):
+        for agent in self.agents:
             if agent.available:
-                agent.available   = False
-                if agent.Receptionist and agent.Event_Stack is None:
-                    agent.Event_Stack = EventListenerThread(uri=config.call_flow_events, token=agent.Call_Control.authtoken)
-                    agent.Event_Stack.start()
-                    agent.Event_Stack.WaitForOpen()
+                return agent.prepare()
 
-                logging.info ("Aquired " + agent.toString())
-                return agent
-
-    def Release (self, agent):
-        for a2 in self.Agents:
+    def release(self, agent):
+        for a2 in self.agents:
             if agent == a2:
-                if agent.Receptionist and not agent.Event_Stack is None:
-                    agent.Event_Stack.stop()
-                    agent.Event_Stack = None
+                if agent.receptionist and not agent.event_stack is None:
+                    agent.event_stack.stop()
+                    agent.event_stack = None
                 agent.available = True
-                logging.info ("Released " + agent.toString())
+                self.log.info("Released " + agent.to_string())
                 return
 
-        raise Not_Found()
+        raise NotFound()
 
 #Receptionsts = AgentPool(AgentConfigs)
 
 if __name__ == "__main__":
-    Receptionsts = AgentPool(AgentConfigs)
-    Customers    = AgentPool(CustomerConfigs)
+    Receptionists = AgentPool(ReceptionistConfigs)
+    Customers     = AgentPool(CustomerConfigs)
 
-    r = Receptionsts.Aquire()
-    r1 = Receptionsts.Aquire()
-    r2 = Receptionsts.Aquire()
-    r.Release()
-    r = Receptionsts.Aquire()
-    c = Customers.Aquire()
-    c.Release()
-    c = Customers.Aquire()
-    c.SIP_Phone.Dial("12340001")
-    r.Event_Stack.WaitFor(event_type="call_offer")
-    r.Release()
-    r1.Release()
-    r2.Release()
-    c.Release()
+    for i in range (1, 10):
+        r = Receptionists.request()
+        r1 = Receptionists.request()
+        r2 = Receptionists.request()
+        r.release()
+        r = Receptionists.request()
+        c = Customers.request()
+        c.release()
+        c = Customers.request()
+        c.sip_phone.Dial("12340001")
+        r.event_stack.WaitFor(event_type="call_offer")
+        r.release()
+        r1.release()
+        r2.release()
+        c.release()
