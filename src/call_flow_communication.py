@@ -17,19 +17,27 @@ class Server_401(Exception):
 class callFlowServer:
 
     class protocol:
-        callHangup = "/call/hangup"
-        callList   = "/call/list"
-        callQueue  = "/call/queue"
-        callPark   = "/call/park"
-        callPickup = "/call/pickup"
-        peerList   = "/debug/peer/list"
-        tokenParam = "?token="
+        call_namespace  = "/call"
+        callHangup      = call_namespace + "/hangup"
+        callList        = call_namespace + "/list"
+        callQueue       = call_namespace + "/queue"
+        callPark        = call_namespace + "/park"
+        callOriginate   = call_namespace + "/originate"
+        callPickup      = call_namespace + "/pickup"
+        callTransfer    = call_namespace + "/transfer"
+        callOffer       = call_namespace + "/offer"
+        callOfferAccept = callOffer + "/accept"
+        callOfferWait   = callOffer + "/wait"
+        peerList        = "/debug/peer/list"
+        tokenParam      = "?token="
 
+    log       = None
     uri       = None
     http      = httplib2.Http(".cache")
     authtoken = None
 
     def __init__ (self, uri, authtoken):
+        self.log = logging.getLogger(self.__class__.__name__)
         self.uri       = uri
         self.authtoken = authtoken
 
@@ -39,18 +47,20 @@ class callFlowServer:
         return headers['status'] == '200'
 
     def Request (self, path, method="GET", params={}):
-        logging.info(method + " " + path + " " + urlencode(params))
+        self.log.info(method + " " + path + " " + urlencode(params))
         try:
             uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
 
             if method == 'POST':
-                headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri,
-                                                                              'Content-Type' : 'application/x-www-form-urlencoded'}, body=urlencode(params))
+                headers, body = self.http.request(uri_path , method,
+                                                  headers={'Origin' : self.uri,
+                                                           'Content-Type' : 'application/x-www-form-urlencoded'},
+                                                  body=urlencode(params))
             else:
                 headers, body = self.http.request(uri_path , method, headers={'Origin' : self.uri})
 
         except:
-            logging.error("call-flow server unreachable!")
+            self.log.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
         if headers['status'] == '404':
             raise Server_404 (method + " " + path + " Response:" + body)
@@ -67,13 +77,25 @@ class callFlowServer:
 
         return json.loads (body)
 
+    def Originate_Arbitrary (self, context, extension):
+        headers, body = self.Request(self.protocol.callOriginate, "POST",
+                                     params={'context' : context, 'extension' : extension})
+
+        return json.loads (body)
+
+    def Originate_Specific (self, context, phone_id):
+        headers, body = self.Request(self.protocol.callOriginate, "POST",
+                                     params={'context' : context, 'phone_id' : phone_id})
+
+        return json.loads (body)
+
     def HangupCall (self, call_id):
         try:
             headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
 
             return json.loads (body)
         except:
-            logging.error ("Hanging up " + str (call_id) + " didn't succeed.  We assume that the call was terminated by other means.")
+            self.log.error ("Hanging up " + str (call_id) + " didn't succeed.  We assume that the call was terminated by other means.")
 
     def HangupAllCalls (self):
         for call in self.CallList().Calls():
@@ -89,18 +111,16 @@ class callFlowServer:
 
     def CallList (self):
         headers, body = self.Request(self.protocol.callList)
-        if headers['status'] != '200':
-            logging.error ("Expected 200 here, got: " + headers['status'])
-            raise Server_Unavailable (path)
+
+        return CallList().fromJSON(body)
+
+    def CallQueue (self):
+        headers, body = self.Request(self.protocol.callQueue)
+
         return CallList().fromJSON(body)
 
     def peerList(self):
-        path = self.protocol.peerList + self.protocol.tokenParam + self.authtoken
-        headers, body = self.Request(path)
-
-        if headers['status'] != '200':
-            logging.error ("Expected 200 here, got: " + headers['status'])
-            raise Server_Unavailable (path)
+        headers, body = self.Request(self.protocol.peerList)
 
         return PeerList().fromJSON(body)
 
