@@ -6,7 +6,7 @@ from call_flow_communication import callFlowServer
 from sip_profiles import agent1103 as anyAgent
 from sip_utils import SipAccount, SipAgent
 
-from static_agent_pools import Receptionsts
+from static_agent_pools import Receptionists
 
 try:
     import unittest2 as unittest
@@ -15,7 +15,7 @@ except ImportError:
 
 logging.basicConfig(level=logging.INFO)
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class Peer(unittest.TestCase):
 
@@ -25,7 +25,7 @@ class Peer(unittest.TestCase):
         try: #py.test src/protocol_peer_tests.py
 
             self.log.info ("Unregistering agent to assert that we get a registration event.")
-            receptionist = Receptionsts.request()
+            receptionist = Receptionists.request()
             receptionist.sip_phone.Unregister()
 
 

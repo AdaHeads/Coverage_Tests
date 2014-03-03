@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class Queue(unittest.TestCase):
 
@@ -21,7 +21,7 @@ class Queue(unittest.TestCase):
 
     def test_queue_interface(self):
 
-        receptionist = Receptionsts.request()
+        receptionist = Receptionists.request()
         self.log.info("Got receptionst " + receptionist.to_string())
         customer     = Customers.request()
         self.log.info("Got customer " + customer.to_string())

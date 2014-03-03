@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class Originate(unittest.TestCase):
     """
@@ -23,7 +23,7 @@ class Originate(unittest.TestCase):
     log = logging.getLogger(__name__ + ".Originate")
 
     def test_origination_to_known_number(self):
-        receptionist = Receptionsts.request()
+        receptionist = Receptionists.request()
 
         try:
             context = "2@1"
@@ -43,7 +43,7 @@ class Originate(unittest.TestCase):
 
     def test_origination_to_arbitrary_number(self):
 
-        receptionist = Receptionsts.request()
+        receptionist = Receptionists.request()
 
         try:
             context = "2@1"
@@ -64,7 +64,7 @@ class Originate(unittest.TestCase):
         self.fail ("Not implemented")
 
     def test_origination_to_invalid_phone_id(self):
-        receptionist = Receptionsts.request()
+        receptionist = Receptionists.request()
 
         try:
             context = "2@1"

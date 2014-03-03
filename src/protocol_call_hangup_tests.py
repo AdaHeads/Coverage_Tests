@@ -18,7 +18,7 @@ try:
 except ImportError:
     import unittest
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class Hangup(unittest.TestCase):
 
@@ -26,7 +26,7 @@ class Hangup(unittest.TestCase):
 
     # Test for the presence of hangup events and call interface.
     def test_event(self):
-        test_receptionist = Receptionsts.request()
+        test_receptionist = Receptionists.request()
         test_customer = Customers.request()
 
         try:

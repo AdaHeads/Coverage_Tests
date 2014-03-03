@@ -19,7 +19,7 @@ try:
 except ImportError:
     import unittest
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class List(unittest.TestCase):
 
@@ -27,7 +27,7 @@ class List(unittest.TestCase):
 
     def test_list(self):
 
-        test_receptionist = Receptionsts.request()
+        test_receptionist = Receptionists.request()
         test_customer = Customers.request()
 
         try:

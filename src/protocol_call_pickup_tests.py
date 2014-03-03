@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 class Pickup(unittest.TestCase):
 
@@ -24,7 +24,7 @@ class Pickup(unittest.TestCase):
         reception_id = 1
         reception = "1234000" + str(reception_id)
 
-        test_receptionist = Receptionsts.request()
+        test_receptionist = Receptionists.request()
         test_customer     = Customers.request()
 
         try:
