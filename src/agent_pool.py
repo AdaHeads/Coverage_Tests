@@ -31,7 +31,7 @@ class Agent:
     receptionist = False
     agent_pool = None
     
-    def __init__(self, username, password,
+    def __init__(self, username, password, id=None,
                  server=config.pbx,
                  sip_port=5060,
                  receptionist=False,
@@ -39,6 +39,7 @@ class Agent:
                  pool=None):
 
         self.username     = username
+        self.ID           = id
         self.server       = server
         self.sip_port     = str(sip_port) # TODO Convert to int all the way.
         self.agent_pool   = pool
@@ -71,6 +72,13 @@ class Agent:
 
         self.event_stack.WaitFor(event_type = "call_pickup",
                                  call_id    =  call_id)
+
+    def dial(self, end_point):
+        if self.receptionist:
+            self.call_control.Originate_Arbitrary(context="1@1",
+                                                  extension=end_point)
+        else:
+            self.sip_phone.Dial(extension=end_point)
 
     def prepare(self):
         if not self.sip_phone.Connected():
@@ -118,6 +126,7 @@ class AgentPool:
         for agent_config in agent_configs:
             if 'ID' in agent_config:
                 self.agents.append(Agent(username=agent_config['username'],
+                                         id=agent_config['ID'],
                                          password=agent_config['password'],
                                          auth_token=agent_config['authtoken'],
                                          sip_port=agent_config['sipport'],
