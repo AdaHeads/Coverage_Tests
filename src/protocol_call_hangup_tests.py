@@ -47,7 +47,7 @@ class Hangup(unittest.TestCase):
             raise
 
     def test_interface_call_found(self):
-        test_receptionist = Receptionsts.request()
+        test_receptionist = Receptionists.request()
         test_customer = Customers.request()
 
         try:
@@ -77,7 +77,7 @@ class Hangup(unittest.TestCase):
             raise
 
     def test_interface_call_not_found(self):
-        test_receptionist = Receptionsts.request()
+        test_receptionist = Receptionists.request()
 
         try:
             reception = "12340001"
