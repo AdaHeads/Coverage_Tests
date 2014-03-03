@@ -11,7 +11,7 @@ import config
 
 from agent_pool import AgentPool, Agent, AgentConfigs, CustomerConfigs
 
-from static_agent_pools import Receptionsts, Customers
+from static_agent_pools import Receptionists, Customers
 
 try:
     import unittest2 as unittest
