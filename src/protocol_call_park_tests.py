@@ -17,7 +17,25 @@ class Park(unittest.TestCase):
 
     log = logging.getLogger(__name__ + ".Park")
 
+
+    def test_unpark_event_from_hangup(self):
+        """
+        Tests if call unpark events occur when a call is being hung up while in a parking lot.
+        """
+        self.fail("Not implemented.")
+
+
+    def test_park_nonexisting_call(self):
+        """
+        Validates that the /call/park interface indeed returns 404 when the call is
+        no longer present.
+        """
+        self.fail ("Not implemented")
+
     def explicit_park(self):
+        """
+        Tests the /call/park interface on a call that we know exists.
+        """
         reception = "12340001"
 
         test_receptionist = Receptionsts.request()
@@ -53,3 +71,10 @@ class Park(unittest.TestCase):
             test_receptionist.release()
             test_customer.release()
             raise
+
+    def test_implicit_park(self):
+        """
+        Validates that in implicit park indeed occurs when originating a new call
+        while having an active call. Doesn't use the /call/park interface
+        """
+        self.fail ("Not implemented")

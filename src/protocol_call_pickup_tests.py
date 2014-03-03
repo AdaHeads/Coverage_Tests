@@ -59,3 +59,9 @@ class Pickup(unittest.TestCase):
             test_receptionist.release()
             test_customer.release()
             raise
+
+    def test_pickup_specified(self):
+        self.fail ("Not implemented.")
+
+    def test_pickup_nonexisting_call(self):
+        self.fail ("Not implemented.")
