@@ -1,57 +1,13 @@
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1a2
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1aii-1
 
-from incoming_calls          import Test_Case
-from sip_profiles            import agent1102 as Caller
-from sip_profiles            import agent1103 as Receptionist
-from sip_profiles            import agent1106 as Call_Stealer
-from config                  import queued_reception as Reception
-
-import logging
-
-from time                    import sleep
-
-from sip_utils               import SipAgent, SipAccount
-from call_flow_communication import callFlowServer
-from config                  import call_flow_server_uri as Call_Flow_Server_URI
-
-class Incorrectly_Allocated_Call (Exception):
-    pass
+from incoming_calls import Test_Case
+from config         import queued_reception as Reception
+from time           import sleep
 
 class Sequence_Diagram (Test_Case):
-    Call_Stealing_Agent = None
-    Call_Steal_Control  = None
-
-    def Preconditions (self):
-        super (Sequence_Diagram, self).Preconditions (Caller       = Caller,
-                                                      Receptionist = Receptionist,
-                                                      Reception    = Reception)
-
-        logging.info ("Creating call stealing SIP agent...")
-        self.Call_Stealing_Agent = SipAgent (account = SipAccount (username = Call_Stealer.username,
-                                                                   password = Call_Stealer.password,
-                                                                   sip_port = Call_Stealer.sipport))
-
-        logging.info ("Connecting call stealing agent...")
-        self.Call_Stealing_Agent.Connect ()
-
-        logging.info ("Creating call stealing Call-Flow-Control connection...")
-        self.Call_Steal_Control = callFlowServer (uri       = Call_Flow_Server_URI,
-                                                  authtoken = Call_Stealer.authtoken)
-
-        logging.info ("Checking call stealing token validity against Call-Flow-Control...")
-        if self.Call_Steal_Control.TokenValid:
-            logging.info ("Valid token.")
-        else:
-            self.fail ("Invalid call stealing authentication token.")
-
-    def __del__ (self):
-        self.Call_Stealing_Agent.QuitProcess ()
-
-        super (Sequence_Diagram, self).__del__ ()
-
     def test_Run (self):
         try:
-            self.Preconditions ()
+            self.Preconditions (Reception = Reception)
 
             self.Caller_Places_Call ()
             self.Caller_Hears_Dialtone ()
@@ -61,18 +17,17 @@ class Sequence_Diagram (Test_Case):
             Call_ID, Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
-            logging.info ("- Call stealer interferes")
-            self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Call_Steal_Control,
+            self.Log ("- Call stealer interferes")
+            self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Receptionist_2.call_control,
                                         Call_ID           = Call_ID)
             sleep (0.250) # To assure that client-N will miss the 200 ms time-window for responding
-            self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Call_Flow_Control,
+            self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Receptionist.call_control,
                                         Call_ID           = Call_ID)
             Call_Information = self.Call_Allocation_Acknowledgement (Call_ID         = Call_ID,
-                                                                     Receptionist_ID = Call_Stealer.ID)
+                                                                     Receptionist_ID = self.Receptionist_2.ID)
             self.Step (Message = "Client-N->Receptionist-N: Un-queue: JSA R&I.")
 
-            self.Client.stop ()
+            self.Postprocessing ()
         except:
-            if not self.Client == None:
-                self.Client.stop ()
+            self.Postprocessing ()
             raise
