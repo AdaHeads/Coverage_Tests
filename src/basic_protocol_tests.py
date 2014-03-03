@@ -10,9 +10,6 @@ try:
 except ImportError:
     import unittest
 
-logger = logging.getLogger("TechnicalStuff")
-logger.setLevel(config.loglevel)
-
 class TechnicalStuff(unittest.TestCase):
     cfs = callFlowServer(uri=config.call_flow_server_uri, authtoken=AnyAgent.authtoken)
     
