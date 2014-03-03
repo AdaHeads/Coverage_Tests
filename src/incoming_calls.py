@@ -147,7 +147,7 @@ class Test_Case (unittest.TestCase):
 
         Data_On_Reception = self.Reception_Database.Single (Reception_ID)
 
-        self.Step (Message = "Received information: " + pformat (Data_On_Reception))
+        self.Step (Message = "Received information on reception " + str (Reception_ID))
 
         return Data_On_Reception
 
