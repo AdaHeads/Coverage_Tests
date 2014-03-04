@@ -18,7 +18,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH: pause timed out")
             self.Step (Message = "FreeSWITCH->Caller: Pre-recorded message")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued as unavailable")
-            self.Call_Announced_As_Locked ()
+            self.Call_Announced_As_Locked (Call_ID = Call_ID)
             self.Step (Message = "Client-N->Receptionist-N: shows call (as locked)")
             self.Step (Message = "FreeSWITCH->Caller: Queue music")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued")
