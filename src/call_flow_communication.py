@@ -14,6 +14,12 @@ class Server_404(Exception):
 class Server_401(Exception):
     pass
 
+class Server_400(Exception):
+    pass
+
+class Unspecified_Server_Error(Exception):
+    pass
+
 class callFlowServer:
 
     class protocol:
@@ -62,10 +68,18 @@ class callFlowServer:
         except:
             self.log.error("call-flow server unreachable!")
             raise Server_Unavailable (uri_path)
+
         if headers['status'] == '404':
             raise Server_404 (method + " " + path + " Response:" + body)
+
         elif headers['status'] == '401':
             raise Server_401 (method + " " + path + " Response:" + body)
+
+        elif headers['status'] == '400':
+            raise Server_400 (method + " " + path + " Response:" + body)
+
+        elif headers['status'] != '200':
+            raise Unspecified_Server_Error (method + " " + path + " Response:" + body)
 
         return headers, body
 

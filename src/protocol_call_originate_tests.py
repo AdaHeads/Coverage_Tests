@@ -5,7 +5,7 @@ import logging
 
 
 # Exceptions
-from call_flow_communication import Server_404
+from call_flow_communication import Server_404, Server_400
 from call_utils import NotFound
 
 try:
@@ -60,8 +60,25 @@ class Originate(unittest.TestCase):
             receptionist.release()
             raise
 
+    ##TODO; missing parameters.
+
     def test_origination_to_forbidden_number(self):
-        self.fail ("Not implemented")
+        receptionist = Receptionists.request()
+
+        try:
+            context = "2@1"
+            extension = ""
+
+            try:
+                receptionist.call_control.Originate_Arbitrary(context=context, extension="1")
+            except Server_400:
+                receptionist.release()
+                return
+
+            self.fail ("Expected 400 on on origination request!")
+        except:
+            receptionist.release()
+            raise
 
     def test_origination_to_invalid_phone_id(self):
         receptionist = Receptionists.request()
