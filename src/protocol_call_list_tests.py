@@ -27,28 +27,30 @@ class List(unittest.TestCase):
 
     def test_list(self):
 
-        test_receptionist = Receptionists.request()
-        test_customer = Customers.request()
+        receptionist = Receptionists.request()
+        customer = Customers.request()
 
         try:
             reception = "12340001"
 
-            self.log.info ("Customer " + test_customer.username + " dials " + reception)
-            test_customer.sip_phone.Dial(reception)
-            test_receptionist.event_stack.WaitFor(event_type="call_offer")
-            offered_call = test_receptionist.event_stack.Get_Latest_Event (Event_Type ="call_offer",
+            self.log.info ("Customer " + customer.username + " dials " + reception)
+            customer.sip_phone.Dial(reception)
+            receptionist.event_stack.WaitFor(event_type="call_offer")
+            offered_call = receptionist.event_stack.Get_Latest_Event (Event_Type ="call_offer",
                                                                            Destination=reception)
 
-            call_list = test_receptionist.call_control.CallList()
+            call_list = receptionist.call_control.CallList()
             try:
                 call_list.locateCall (call_id=offered_call['call']['id'])
             except NotFound:
                 self.fail (str(offered_call['call']['id']) + " not found in " + call_list.to_string())
 
-            test_receptionist.release()
-            test_customer.release()
+            customer.sip_phone.HangupAllCalls()
+
+            receptionist.release()
+            customer.release()
         except:
-            test_receptionist.release()
-            test_customer.release()
+            receptionist.release()
+            customer.release()
             raise
 
