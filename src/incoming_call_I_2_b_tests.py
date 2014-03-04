@@ -22,7 +22,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "Client-N->Receptionist-N: shows call (as locked)")
             self.Step (Message = "FreeSWITCH->Caller: Queue music")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued")
-            self.Call_Announced_As_Unlocked ()
+            self.Call_Announced_As_Unlocked (Call_ID = Call_ID)
             self.Step (Message = "Receptionist-N->Client-N: take call")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
             self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Receptionist.call_control,
