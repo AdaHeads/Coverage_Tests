@@ -18,6 +18,7 @@ class Test_Case (unittest.TestCase):
     Caller             = None
     Receptionist       = None
     Receptionist_2     = None
+    Callee             = None
 
     Reception_Database = None
 
@@ -32,7 +33,7 @@ class Test_Case (unittest.TestCase):
 
         self.Log ("Incoming calls test case: Setting up preconditions...")
 
-        self.Log ("Requesting a customer...")
+        self.Log ("Requesting a customer (caller)...")
         self.Caller = Customers.request ()
 
         self.Log ("Requesting a receptionist...")
@@ -40,6 +41,9 @@ class Test_Case (unittest.TestCase):
 
         self.Log ("Requesting a second receptionist...")
         self.Receptionist_2 = Receptionists.request ()
+
+        self.Log ("Requesting a customer (callee)...")
+        self.Callee = Customers.request ()
 
         self.Log ("Select which reception to test...")
         self.Reception    = Reception
@@ -58,6 +62,8 @@ class Test_Case (unittest.TestCase):
             self.Receptionist.release ()
         if not self.Receptionist_2 is None:
             self.Receptionist_2.release ()
+        if not self.Callee is None:
+            self.Callee.release ()
 
     def Step (self,
               Message,
@@ -72,25 +78,39 @@ class Test_Case (unittest.TestCase):
         self.Next_Step = self.Next_Step + 1
 
     def Log (self,
-             Message):
+             Message,
+             Delay_In_Seconds = 0.0):
         if self.Next_Step is None:
             self.Next_Step = 1
         if self.Start_Time is None:
             self.Start_Time = clock ()
 
         logging.info ("     " + str (self.Next_Step - 1) + "@" + str (clock() - self.Start_Time) + ": " + Message)
+        sleep (Delay_In_Seconds)
 
-    def Caller_Places_Call (self):
-        self.Step (Message = "Caller places call...")
+    def Caller_Places_Call (self, Number):
+        self.Step (Message = "Caller places call to " + str (Number) + "...")
 
         self.Log (Message = "Dialling through caller agent...")
-        self.Caller.dial (self.Reception)
+        self.Caller.dial (Number)
+
+    def Receptionist_Places_Call (self, Number):
+        self.Step (Message = "Receptionist places call to " + str (Number) + "...")
+
+        self.Log (Message = "Dialling through receptionist agent...")
+        self.Receptionist.dial (Number)
 
     def Caller_Hears_Dialtone (self):
         self.Step (Message = "Caller hears dial-tone...")
 
         self.Log (Message = "Caller agent waits for dial-tone...")
         self.Caller.sip_phone.Wait_For_Dialtone ()
+
+    def Receptionist_Hears_Dialtone (self):
+        self.Step (Message = "Receptionist hears dial-tone...")
+
+        self.Log (Message = "Receptionist agent waits for dial-tone...")
+        self.Receptionist.sip_phone.Wait_For_Dialtone ()
 
     def Call_Announced (self):
         self.Step (Message = "Receptionist's client waits for 'call_offer'...")

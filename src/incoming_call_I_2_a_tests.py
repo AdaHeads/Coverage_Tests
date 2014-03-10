@@ -1,4 +1,4 @@
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i2a-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case:-Indgående-opkald#wiki-variant-i2a-1
 
 from incoming_calls import Test_Case
 from config         import queued_reception as Reception
@@ -8,7 +8,7 @@ class Sequence_Diagram (Test_Case):
         try:
             self.Preconditions (Reception = Reception)
 
-            self.Caller_Places_Call ()
+            self.Caller_Places_Call (Number = Reception)
             self.Caller_Hears_Dialtone ()
             self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
@@ -21,7 +21,7 @@ class Sequence_Diagram (Test_Case):
                                         Call_ID           = Call_ID)
             Call_Information = self.Call_Allocation_Acknowledgement (Call_ID         = Call_ID,
                                                                      Receptionist_ID = self.Receptionist.ID)
-            self.Step (Message = "Client-N->Receptionist-N: Information on JSA R&I (with full greeting).")
+            self.Step (Message = "Client-N->Receptionist-N: Information on <reception name> (with full greeting).")
             self.Step (Message = "Call-Flow-Control->FreeSWITCH: connect call to phone-N")
             self.Receptionist_Answers (Call_Information      = Call_Information,
                                        Reception_Information = Reception_Data,
