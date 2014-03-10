@@ -19,7 +19,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [force-end-pause: <call_ID>]")
             self.Step (Message = "FreeSWITCH         ->> Call-Flow-Control [queued-unavailable: <call_ID>]")
             self.Step (Message = "FreeSWITCH         ->> Opkalder          [dagssvar]")
-            self.Receptionist.Wait_For_Call_Locked (Call_ID = Call_ID)
+            self.Call_Announced_As_Locked (Call_ID = Call_ID)
             self.Step (Message = "Klient-N           ->> Receptionist-N    [Queue: <reception name> (optaget)]")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH->Caller: pause music")
