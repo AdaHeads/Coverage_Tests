@@ -12,7 +12,7 @@ class Test_Case (unittest.TestCase):
     Start_Time         = None
     Next_Step          = 1
 
-    def Preconditions (self, Reception):
+    def Preconditions (self):
         self.Start_Time = clock ()
         self.Next_Step  = 1
 
