@@ -1,4 +1,4 @@
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case:-Indgående-opkald#wiki-variant-i1aii-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1aii-1
 
 from incoming_calls import Test_Case
 from config         import queued_reception as Reception
