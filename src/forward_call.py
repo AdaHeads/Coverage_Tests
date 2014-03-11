@@ -124,13 +124,13 @@ class Test_Case (unittest.TestCase):
         self.Step (Message = "Callee receives call...")
 
         self.Log (Message = "Callee agent waits for incoming call...")
-        self.Callee.sip_phone.Wait_For_Incoming_Call ()
+        self.Callee.sip_phone.wait_for_call ()
 
     def Callee_Accepts_Call (self):
         self.Step (Message = "Callee accepts call...")
 
         self.Log (Message = "Callee agent accepts incoming call...")
-        self.Callee.sip_phone.Accept_Incoming_Call ()
+        self.Callee.sip_phone.pickup_call ()
 
     def Call_Announced (self):
         self.Step (Message = "Receptionist's client waits for 'call_offer'...")
