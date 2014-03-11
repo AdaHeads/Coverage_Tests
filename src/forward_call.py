@@ -41,6 +41,7 @@ class Test_Case (unittest.TestCase):
 
         self.Log ("Requesting a customer (callee)...")
         self.Callee = Customers.request ()
+        self.Callee.Number = self.Callee.username
 
         self.Log ("Select which reception to test...")
         self.Reception    = Reception
