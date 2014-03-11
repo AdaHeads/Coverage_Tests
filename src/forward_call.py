@@ -35,12 +35,19 @@ class Test_Case (unittest.TestCase):
 
         self.Log ("Requesting a customer (caller)...")
         self.Caller = Customers.request ()
+        self.Log ("Put caller agent on manual answer...")
+        self.Caller.sip_phone.disable_auto_answer ()
 
         self.Log ("Requesting a receptionist...")
         self.Receptionist = Receptionists.request ()
+        self.Log ("Put receptionist agent on auto-answer...")
+        self.Receptionist.sip_phone.enable_auto_answer ()
 
         self.Log ("Requesting a customer (callee)...")
         self.Callee = Customers.request ()
+        self.Log ("Put callee agent on manual answer...")
+        self.Callee.sip_phone.disable_auto_answer ()
+        self.Log ("Make callee number easily available...")
         self.Callee.Number = self.Callee.username
 
         self.Log ("Select which reception to test...")
@@ -63,7 +70,7 @@ class Test_Case (unittest.TestCase):
         self.Log ("Forward call test case: Preconditions set up.")
 
     def Postprocessing (self):
-        self.Log ("Forward call test case: Cleaning up after test...")
+        self.Step ("Forward call test case: Cleaning up after test...")
 
         if not self.Caller is None:
             self.Caller.release ()
