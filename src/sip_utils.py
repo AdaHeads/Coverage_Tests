@@ -124,7 +124,8 @@ class SipAgent:
                 raise Process_Failure ("Process returned empty line, which " + \
                                        "indicates an internal failure in the SIP process. " + \
                                        "Inserting delays between Register/Unregister calls remedies it.")
-
+            else:
+                logging.info ("Process returned:" + line) 
 
     def __send(self, command):
         self.__process.stdin.write(command + "\n");
