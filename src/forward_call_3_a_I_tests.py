@@ -13,7 +13,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "Receptionist-N     ->> Klient-N          [indtaster/indkopierer nummer]")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-ring-op]")
             self.Receptionist_Hears_Dialtone ()
-            self.Callee_Receives_Call ()
+            self.Step (Message = "Callee phone rings.")
             self.Callee_Accepts_Call ()
             self.Step (Message = "=== loop ===")
             self.Step (Message = "Receptionist-N     ->> Telefon-N         [snak]")

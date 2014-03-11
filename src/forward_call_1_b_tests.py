@@ -14,7 +14,7 @@ class Sequence_Diagram (Test_Case):
             self.Callee_Receives_Call ()
             self.Step (Message = "FreeSWITCH         ->> FreeSWITCH        [forbind opkald og telefon-N]")
             self.Receptionist_Hears_Dialtone ()
-            self.Callee_Receives_Call ()
+            self.Step (Message = "Callee phone rings.")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-opgiv-opkald]")
             self.Receptionist_Hangs_Up ()
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [afslut telefon-N's udgaaende opkald]")
