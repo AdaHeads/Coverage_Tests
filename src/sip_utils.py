@@ -96,6 +96,9 @@ class SipAgent:
         self.__process.stdin.write("p\n");
         self.__waitFor("+OK")
 
+    def wait_for_call(self):
+        self.__waitFor("+CALL")
+
     def Wait_For_Dialtone(self):
         #self.__waitFor("+dialtone")
         self.log.info("Should have been waiting for a dial-tone here.  TODO: Fix 'sip_utils.py'.")
