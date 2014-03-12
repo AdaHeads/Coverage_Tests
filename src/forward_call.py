@@ -47,8 +47,6 @@ class Test_Case (unittest.TestCase):
         self.Callee = Customers.request ()
         self.Log ("Put callee agent on manual answer...")
         self.Callee.sip_phone.disable_auto_answer ()
-        self.Log ("Make callee number easily available...")
-        self.Callee.Number = self.Callee.username
 
         self.Log ("Select which reception to test...")
         self.Reception    = Reception
