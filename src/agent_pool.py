@@ -56,6 +56,9 @@ class Agent:
         return self.username + "@" + self.server + ":" + self.sip_port + \
             " available: " + str(self.available) + " Receptionist: " + str(self.receptionist)
 
+    def sip_uri(self):
+        return self.sip_phone.sip_uri()
+    
     def pickup_call_wait_for_lock(self, call_id):
         try:
             self.call_control.PickupCall(call_id=call_id)
