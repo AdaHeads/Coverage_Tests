@@ -104,8 +104,8 @@ class SipAgent:
         self.__waitFor("+CALL")
 
     def Wait_For_Dialtone(self):
-        #self.__waitFor("+dialtone")
-        self.log.info("Should have been waiting for a dial-tone here.  TODO: Fix 'sip_utils.py'.")
+        raise NotImplementedError ("'basic_agent' does not yet report '+DIALTONE' when it hears a dial-tone.")
+        self.__waitFor("+DIALTONE")
 
     def QuitProcess(self):
         self.HangupAllCalls()
