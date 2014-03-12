@@ -99,9 +99,6 @@ class SipAgent:
     def wait_for_call(self):
         self.__waitFor("+CALL")
 
-    def sip_uri(self):
-        return "sip:" + self.account.to_string ()
-
     def Wait_For_Dialtone(self):
         #self.__waitFor("+dialtone")
         self.log.info("Should have been waiting for a dial-tone here.  TODO: Fix 'sip_utils.py'.")

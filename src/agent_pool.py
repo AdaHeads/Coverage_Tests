@@ -11,6 +11,14 @@ try:
 except ImportError:
     import unittest
 
+import socket
+def Public_IP_Address ():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((config.pbx, 5060))
+    result = s.getsockname()[0]
+    s.close()
+    return result
+
 class NoFreeAgents(Exception):
     pass
 
@@ -57,8 +65,11 @@ class Agent:
             " available: " + str(self.available) + " Receptionist: " + str(self.receptionist)
 
     def sip_uri(self):
-        return self.sip_phone.sip_uri()
-    
+        if self.receptionist:
+            return "sip:" + str(self.username) + "@" + self.server
+        else:
+            return "sip:" + str(self.username) + "@" + Public_IP_Address() + ":" + str (self.sip_port)
+
     def pickup_call_wait_for_lock(self, call_id):
         try:
             self.call_control.PickupCall(call_id=call_id)
