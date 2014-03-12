@@ -146,6 +146,11 @@ class Test_Case (unittest.TestCase):
         self.Log (Message = "Callee agent accepts incoming call...")
         self.Callee.sip_phone.pickup_call ()
 
+    def Callee_Receives_Hangup (self):
+        self.Step (Message = "Callee receives hangup on active call...")
+
+        self.Log (Message = "Callee agent SHOULD wait for hang-up on active call here.  TODO!")
+
     def Call_Announced (self):
         self.Step (Message = "Receptionist's client waits for 'call_offer'...")
 
