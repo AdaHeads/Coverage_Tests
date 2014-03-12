@@ -48,22 +48,22 @@ class EventListenerThread(threading.Thread):
 
     def WaitForOpen (self, timeout=3.0):
         RESOLUTION = 0.1
-        timeSlept = 0.0;
+        timeSlept = 0.0
         while timeSlept < timeout:
             timeSlept += RESOLUTION
             if self.open:
 
-                return;
+                return
             sleep (RESOLUTION)
         raise TimeOutReached ("Did not open websocket in a timely manner")
 
     def WaitFor (self, event_type, call_id=None, timeout=10.0):
         RESOLUTION = 0.1
-        timeSlept = 0.0;
+        timeSlept = 0.0
         while timeSlept < timeout:
             timeSlept += RESOLUTION
             if self.stack_contains (event_type=event_type, call_id=call_id):
-                return;
+                return
             sleep (RESOLUTION)
         raise TimeOutReached (event_type + ":" + str (call_id))
 
@@ -142,7 +142,7 @@ class EventListenerThread(threading.Thread):
 
     def stop(self):
         if self.open:
-            self.ws.close();
+            self.ws.close()
             self.open = False
 
     def __del__(self):
@@ -152,5 +152,5 @@ class EventListenerThread(threading.Thread):
 if __name__ == "__main__":
 
     elt = EventListenerThread(uri=config.call_flow_events, token=config.authtoken)
-    elt.start();
-    elt.stop();
+    elt.start()
+    elt.stop()

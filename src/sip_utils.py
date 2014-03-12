@@ -67,33 +67,33 @@ class SipAgent:
 
         self.__process.stdin.write("dsip:"+extension+ "@" + server + "\n")
         self.__waitFor("+OK")
-        self.log.info("Dialing " + extension+ "@" + server);
+        self.log.info("Dialing " + extension+ "@" + server)
 
     def Unregister (self):
-        self.__process.stdin.write("u\n");
+        self.__process.stdin.write("u\n")
         self.__waitFor("+OK")
-        self.log.info("SIP agent " + self.account.to_string() + " unregistered.");
+        self.log.info("SIP agent " + self.account.to_string() + " unregistered.")
         time.sleep(0.05) # Let the unregistration settle.
 
     def Register (self):
-        self.__process.stdin.write("r\n");
+        self.__process.stdin.write("r\n")
         self.__waitFor("+OK")
-        self.log.info("SIP agent " + self.account.to_string() + " registered.");
+        self.log.info("SIP agent " + self.account.to_string() + " registered.")
 
     def HangupAllCalls(self):
-        self.__process.stdin.write("h\n");
+        self.__process.stdin.write("h\n")
         self.__waitFor("+OK")
 
     def enable_auto_answer(self):
-        self.__process.stdin.write("a\n");
+        self.__process.stdin.write("a\n")
         self.__waitFor("+OK")
 
     def disable_auto_answer(self):
-        self.__process.stdin.write("m\n");
+        self.__process.stdin.write("m\n")
         self.__waitFor("+OK")
 
     def pickup_call(self):
-        self.__process.stdin.write("p\n");
+        self.__process.stdin.write("p\n")
         self.__waitFor("+OK")
 
     def wait_for_call(self):
@@ -131,7 +131,7 @@ class SipAgent:
                 logging.info ("Process returned:" + line) 
 
     def __send(self, command):
-        self.__process.stdin.write(command + "\n");
+        self.__process.stdin.write(command + "\n")
         got_reply = False
 
 if __name__ == "__main__":
