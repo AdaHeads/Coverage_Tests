@@ -131,6 +131,7 @@ class Test_Case (unittest.TestCase):
 
         self.Log (Message = "Callee agent waits for incoming call...")
         self.Callee.sip_phone.wait_for_call ()
+        self.Log (Message = "Callee agent got an incoming call.")
 
     def Callee_Accepts_Call (self):
         self.Step (Message = "Callee accepts call...")
