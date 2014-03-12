@@ -126,6 +126,13 @@ class Test_Case (unittest.TestCase):
         self.Log (Message = "Receptionist agent waits for dial-tone...")
         self.Receptionist.sip_phone.Wait_For_Dialtone ()
 
+    def Receptionist_Hangs_Up (self):
+        self.Step (Message = "Receptionist hangs up...")
+
+        self.Log (Message = "Calling 'HangupAllCalls()'... (should really just be the current call)")
+        self.Receptionist.sip_phone.HangupAllCalls ()
+        self.Log (Message = "Succeeded hanging up (all) call(s).")
+
     def Callee_Receives_Call (self):
         self.Step (Message = "Callee receives call...")
 
