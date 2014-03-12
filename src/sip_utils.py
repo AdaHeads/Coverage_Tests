@@ -80,6 +80,10 @@ class SipAgent:
         self.__waitFor("+OK")
         self.log.info("SIP agent " + self.account.to_string() + " registered.")
 
+    def HangupCurrentCall (self):
+        self.__process.stdin.write("H\n")
+        self.__waitFor("+OK")
+
     def HangupAllCalls(self):
         self.__process.stdin.write("h\n")
         self.__waitFor("+OK")

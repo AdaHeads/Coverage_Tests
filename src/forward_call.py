@@ -129,9 +129,9 @@ class Test_Case (unittest.TestCase):
     def Receptionist_Hangs_Up (self):
         self.Step (Message = "Receptionist hangs up...")
 
-        self.Log (Message = "Calling 'HangupAllCalls()'... (should really just be the current call)")
-        self.Receptionist.sip_phone.HangupAllCalls ()
-        self.Log (Message = "Succeeded hanging up (all) call(s).")
+        self.Log (Message = "Calling 'HangupCurrentCall()'...")
+        self.Receptionist.sip_phone.HangupCurrentCall ()
+        self.Log (Message = "Succeeded hanging up current call.")
 
     def Callee_Receives_Call (self):
         self.Step (Message = "Callee receives call...")
@@ -149,7 +149,7 @@ class Test_Case (unittest.TestCase):
     def Callee_Receives_Hangup (self):
         self.Step (Message = "Callee receives hangup on active call...")
 
-        self.Log (Message = "Callee agent SHOULD wait for hang-up on active call here.  TODO!")
+        raise NotImplementedError ("Waiting for hang-up of an active call is not implemented yet.")
 
     def Call_Announced (self):
         self.Step (Message = "Receptionist's client waits for 'call_offer'...")
