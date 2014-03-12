@@ -104,7 +104,6 @@ class SipAgent:
         self.__waitFor("+CALL")
 
     def wait_for_hangup(self):
-        raise NotImplementedError ("'basic_agent' does not yet report '+HANGUP' when it receives a hang-up from the other end of the connection.")
         self.__waitFor("+HANGUP")
 
     def Wait_For_Dialtone(self):
