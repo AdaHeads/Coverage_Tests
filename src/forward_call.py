@@ -113,18 +113,21 @@ class Test_Case (unittest.TestCase):
 
         self.Log (Message = "Dialling through receptionist agent...")
         self.Receptionist.dial (Number)
+        self.Log (Message = "Receptionist agent has placed call.")
 
     def Caller_Hears_Dialtone (self):
         self.Step (Message = "Caller hears dial-tone...")
 
         self.Log (Message = "Caller agent waits for dial-tone...")
         self.Caller.sip_phone.Wait_For_Dialtone ()
+        self.Log (Message = "Caller agent hears dial-tone now.")
 
     def Receptionist_Hears_Dialtone (self):
         self.Step (Message = "Receptionist hears dial-tone...")
 
         self.Log (Message = "Receptionist agent waits for dial-tone...")
-        self.Receptionist.sip_phone.Wait_For_Dialtone ()
+        # The PBX calls the phone of the receptionist, when the receptionist tries to make a call, so the event indicating dial-tone is "+CALL", not "+RINGING":
+        self.Receptionist.sip_phone.wait_for_call ()
         self.Log (Message = "Receptionist agent hears dial-tone now.")
 
     def Receptionist_Hangs_Up (self):
@@ -146,6 +149,7 @@ class Test_Case (unittest.TestCase):
 
         self.Log (Message = "Callee agent accepts incoming call...")
         self.Callee.sip_phone.pickup_call ()
+        self.Log (Message = "Callee agent has picked up the incoming call.")
 
     def Callee_Receives_Hangup (self):
         self.Step (Message = "Callee receives hangup on active call...")
