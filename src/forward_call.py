@@ -104,16 +104,8 @@ class Test_Case (unittest.TestCase):
 
     def Caller_Places_Call (self, Number):
         self.Step (Message = "Caller places call to " + str (Number) + "...")
-
-        self.Log (Message = "Dialling through caller agent...")
         self.Caller.dial (Number)
-
-    def Receptionist_Places_Call (self, Number):
-        self.Step (Message = "Receptionist places call to " + str (Number) + "...")
-
-        self.Log (Message = "Dialling through receptionist agent...")
-        self.Receptionist.dial (Number)
-        self.Log (Message = "Receptionist agent has placed call.")
+        self.Log (Message = "Caller has placed call.")
 
     def Caller_Hears_Dialtone (self):
         self.Step (Message = "Caller hears dial-tone...")
@@ -121,6 +113,11 @@ class Test_Case (unittest.TestCase):
         self.Log (Message = "Caller agent waits for dial-tone...")
         self.Caller.sip_phone.Wait_For_Dialtone ()
         self.Log (Message = "Caller agent hears dial-tone now.")
+
+    def Receptionist_Places_Call (self, Number):
+        self.Step (Message = "Receptionist places call to " + str (Number) + "...")
+        self.Receptionist.dial (Number)
+        self.Log (Message = "Receptionist has placed call.")
 
     def Receptionist_Hears_Dialtone (self):
         self.Step (Message = "Receptionist hears dial-tone...")
@@ -130,12 +127,31 @@ class Test_Case (unittest.TestCase):
         self.Receptionist.sip_phone.wait_for_call ()
         self.Log (Message = "Receptionist agent hears dial-tone now.")
 
-    def Receptionist_Hangs_Up (self):
+    def Receptionist_Hangs_Up (self, Call_ID):
         self.Step (Message = "Receptionist hangs up...")
+        self.Receptionist.Hangup_Current_Call (call_id = Call_ID)
+        self.Log (Message = "Succeeded hanging up " + str (Call_ID) + ".")
 
-        self.Log (Message = "Calling 'HangupCurrentCall()'...")
-        self.Receptionist.sip_phone.HangupCurrentCall ()
-        self.Log (Message = "Succeeded hanging up current call.")
+    def Receptionist_Answers (self, Call_Information, Reception_Information, After_Greeting_Played):
+        self.Step (Message = "Receptionist answers...")
+
+        if Call_Information['call']['greeting_played']:
+            try:
+                self.Log (Message = "Receptionist says '" + Reception_Information['short_greeting'] + "'.")
+            except:
+                self.fail ("Reception information missing 'short_greeting'.")
+        else:
+            try:
+                self.Log (Message = "Receptionist says '" + Reception_Information['greeting'] + "'.")
+            except:
+                self.fail ("Reception information missing 'greeting'.")
+
+        if After_Greeting_Played:
+            if not Call_Information['call']['greeting_played']:
+                self.fail ("It appears that the receptionist didn't wait long enough to allow the caller to hear the recorded message.")
+        else:
+            if Call_Information['call']['greeting_played']:
+                self.fail ("It appears that the receptionist waited too long, and allowed the caller to hear the recorded message.")
 
     def Callee_Receives_Call (self):
         self.Step (Message = "Callee receives call...")
@@ -254,23 +270,3 @@ class Test_Case (unittest.TestCase):
 
         return Event
 
-    def Receptionist_Answers (self, Call_Information, Reception_Information, After_Greeting_Played):
-        self.Step (Message = "Receptionist answers...")
-
-        if Call_Information['call']['greeting_played']:
-            try:
-                self.Log (Message = "Receptionist says '" + Reception_Information['short_greeting'] + "'.")
-            except:
-                self.fail ("Reception information missing 'short_greeting'.")
-        else:
-            try:
-                self.Log (Message = "Receptionist says '" + Reception_Information['greeting'] + "'.")
-            except:
-                self.fail ("Reception information missing 'greeting'.")
-
-        if After_Greeting_Played:
-            if not Call_Information['call']['greeting_played']:
-                self.fail ("It appears that the receptionist didn't wait long enough to allow the caller to hear the recorded message.")
-        else:
-            if Call_Information['call']['greeting_played']:
-                self.fail ("It appears that the receptionist waited too long, and allowed the caller to hear the recorded message.")
