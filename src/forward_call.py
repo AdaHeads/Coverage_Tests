@@ -132,6 +132,11 @@ class Test_Case (unittest.TestCase):
         self.Receptionist.Hangup_Current_Call (call_id = Call_ID)
         self.Log (Message = "Succeeded hanging up " + str (Call_ID) + ".")
 
+    def Receptionist_Receives_Call (self):
+        self.Step (Message = "Receptionist receives call...")
+        self.Receptionist.sip_phone.wait_for_call ()
+        self.Log (Message = "Receptionist SIP phone got an incoming call.")
+
     def Receptionist_Answers (self, Call_Information, Reception_Information, After_Greeting_Played):
         self.Step (Message = "Receptionist answers...")
 
