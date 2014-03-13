@@ -7,7 +7,7 @@ class Sequence_Diagram (Test_Case):
         try:
             self.Preconditions ()
 
-            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-for-kontaktliste]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: for-kontaktliste]")
             self.Step (Message = "Receptionist-N    <<-  Klient-N          [fokus: kontaktliste og soegefelt]")
             self.Step (Message = "=== loop ===")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [any character]")

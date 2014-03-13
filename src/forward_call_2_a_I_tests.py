@@ -8,9 +8,9 @@ class Sequence_Diagram (Test_Case):
         try:
             self.Preconditions (Reception = Reception)
 
-            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-liste-med-sekundaere-numre]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: liste-med-sekundaere-numre]")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [pil op/ned - nogle gange]")
-            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-ring-markeret-nummer-op]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: ring-markeret-nummer-op]")
             self.Receptionist_Places_Call (Number = self.Callee.sip_uri ())
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [ring-op: nummer, telefon-N]")
             self.Callee_Receives_Call ()
@@ -26,7 +26,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH         ->> Telefon-N         [SIP: lyd]")
             self.Step (Message = "Telefon-N          ->> Receptionist-N    [snak]")
             self.Step (Message = "=== end loop ===")
-            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvejstast-stil-igennem]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: stil-igennem]")
             self.Step (Message = "Klient-N           ->> Call-Flow-Control [stil-igennem]")
             self.Step (Message = "Klient-N           ->> Klient-N          [ny tilstand: ledig]")
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [connect: incoming, outgoing]")
