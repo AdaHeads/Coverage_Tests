@@ -94,6 +94,12 @@ class Agent:
         else:
             self.sip_phone.Dial(extension=end_point)
 
+    def hang_up(self, call_id=None):
+        if self.receptionist:
+            self.call_control.HangupCall(call_id = call_id)
+        else:
+            self.sip_phone.HangupCurrentCall()
+
     def prepare(self):
         if not self.sip_phone.Connected():
             self.sip_phone.Connect()
