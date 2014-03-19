@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Finde-en-kontakt#wiki-variant-1-1
 
 from find_contact import Test_Case

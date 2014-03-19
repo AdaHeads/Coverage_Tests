@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-i1bii-1
 
 from incoming_calls import Test_Case

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-en-besked#wiki-variant-2ii-1
 
 from send_message import Test_Case
