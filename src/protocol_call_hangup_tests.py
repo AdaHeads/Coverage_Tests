@@ -66,7 +66,7 @@ class Hangup(unittest.TestCase):
             self.log.info ("Extracting latest event.")
             offered_call = test_receptionist.event_stack.Get_Latest_Event (Event_Type ="call_offer",
                                                                            Destination=reception)
-            self.log.info  (str(offered_call))
+            self.log.info  ("Got offered call " + str(offered_call['call']['id']) + " - picking it up.")
             test_receptionist.pickup_call_wait_for_lock(call_id=offered_call['call']['id'])
 
             test_receptionist.release()

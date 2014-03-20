@@ -53,9 +53,12 @@ class callFlowServer:
         return headers['status'] == '200'
 
     def Request (self, path, method="GET", params={}):
-        self.log.info(method + " " + path + " " + urlencode(params))
+
+        uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
+
+        self.log.debug(method + " " + uri_path)
         try:
-            uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
+
 
             if method == 'POST':
                 headers, body = self.http.request(uri_path , method,

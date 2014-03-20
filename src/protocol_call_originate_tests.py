@@ -32,7 +32,10 @@ class Originate(unittest.TestCase):
             self.log.info ("Receptionist " + receptionist.username + " dials phone id" + phone_id + \
                            " in context " + context)
 
-            receptionist.call_control.Originate_Specific(context="2@1", phone_id=phone_id)
+            response = receptionist.call_control.Originate_Specific(context="2@1", phone_id=phone_id)
+
+            self.log.info ("Receptionist " + receptionist.username + " Originated new call with ID " +
+                           str(response['call']['id']))
             #TODO Check that the call is picked up or that in any other way confirm that the origination
             # was indedd a success.
 
