@@ -131,6 +131,56 @@ CustomerConfigs = [
                   'username'  : '1209',
                   'password'  : '1234',
                   'sipport'   : 5269,
+                 },
+                 {
+                  'username'  : '1210',
+                  'password'  : '1234',
+                  'sipport'   : 5270,
+                 },
+                 {
+                  'username'  : '1211',
+                  'password'  : '1234',
+                  'sipport'   : 5271,
+                 },
+                 {
+                  'username'  : '1212',
+                  'password'  : '1234',
+                  'sipport'   : 5272,
+                 },
+                 {
+                  'username'  : '1213',
+                  'password'  : '1234',
+                  'sipport'   : 5273,
+                 },
+                 {
+                  'username'  : '1214',
+                  'password'  : '1234',
+                  'sipport'   : 5274,
+                 },
+                 {
+                  'username'  : '1215',
+                  'password'  : '1234',
+                  'sipport'   : 5275,
+                 },
+                 {
+                  'username'  : '1216',
+                  'password'  : '1234',
+                  'sipport'   : 5276,
+                 },
+                 {
+                  'username'  : '1217',
+                  'password'  : '1234',
+                  'sipport'   : 5277,
+                 },
+                 {
+                  'username'  : '1218',
+                  'password'  : '1234',
+                  'sipport'   : 5278,
+                 },
+                 {
+                  'username'  : '1219',
+                  'password'  : '1234',
+                  'sipport'   : 5279,
                  }
                 ]
 
