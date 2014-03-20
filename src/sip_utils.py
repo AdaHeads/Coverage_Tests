@@ -49,7 +49,8 @@ class SipAgent:
                                         self.account.username,
                                         self.account.password,
                                         self.account.server,
-                                        self.account.sip_port],
+                                        self.account.sip_port,
+                                        str(config.pjsip_loglevel)],
                                        stdin=PIPE,
                                        stdout=PIPE)
             except:
@@ -130,8 +131,8 @@ class SipAgent:
                 raise Process_Failure ("Process returned empty line, which " + \
                                        "indicates an internal failure in the SIP process. " + \
                                        "Inserting delays between Register/Unregister calls remedies it.")
-            else:
-                logging.info ("Process returned:" + line) 
+            #else:
+            #    logging.info ("Process returned:" + line)
 
     def __send(self, command):
         self.__process.stdin.write(command + "\n")
