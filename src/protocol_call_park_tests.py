@@ -81,7 +81,7 @@ class Park(unittest.TestCase):
 
     def test_explicit_park(self):
         """
-        Tests the /call/park interface on a call that we know exists.
+        Tests the /call/park interface on a known call.
         """
         reception = "12340001"
 
@@ -119,7 +119,58 @@ class Park(unittest.TestCase):
             customer.release()
             raise
 
-    def test_implicit_park(self):
+    def test_implicit_park_on_pickup(self):
+        """
+        Validates that in implicit park indeed occurs when originating a new call
+        while having an active call. Doesn't use the /call/park interface
+        """
+        reception = "12340001"
+        origination_context = "2@1"
+        origination_extension = "12340002"
+
+
+        receptionist = Receptionists.request()
+        customer     = Customers.request()
+        customer2    = Customers.request()
+
+        try:
+            # Make a call into the reception
+            self.log.info ("Spawning a signle call to the reception at " + reception)
+            customer.sip_phone.Dial(reception)
+
+            receptionist.event_stack.WaitFor(event_type="call_offer")
+
+            call = receptionist.call_control.PickupCall()
+            if call['destination'] != reception:
+                self.fail ("Invalid reception ID in allocated call.")
+
+            self.log.info ("Got call " + call['id'] + " waiting for transfer..")
+            receptionist.event_stack.WaitFor(event_type="call_pickup",
+                                                  call_id=call['id'])
+
+
+            receptionist.event_stack.flush()
+
+            self.log.info ("Spawning another call to the reception at " + reception)
+            customer2.sip_phone.Dial(reception)
+
+            receptionist.event_stack.WaitFor(event_type="call_offer")
+            event = receptionist.event_stack.Get_Latest_Event(Event_Type="call_offer")
+
+            receptionist.call_control.PickupCall(call_id=event['call']['id'])
+
+            receptionist.event_stack.WaitFor(event_type="call_park", call_id=call['id'])
+
+            receptionist.release()
+            customer.release()
+            customer2.release()
+        except:
+            receptionist.release()
+            customer.release()
+            customer2.release()
+            raise
+
+    def test_implicit_park_on_originate(self):
         """
         Validates that in implicit park indeed occurs when originating a new call
         while having an active call. Doesn't use the /call/park interface
