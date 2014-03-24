@@ -36,6 +36,7 @@ class Sequence_Diagram (Test_Case):
 
             self.Postprocessing ()
         except:
+            self.Log ("Event stack:" + self.Receptionist.event_stack.dumpStack())
             self.Postprocessing ()
             raise
 
