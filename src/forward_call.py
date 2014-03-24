@@ -121,7 +121,7 @@ class Test_Case (unittest.TestCase):
         self.Step (Message = "Receptionist places call to " + str (Number) + "...")
         Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "1@1",
                                                                        extension = Number)
-        if Response["status"] = "ok":
+        if Response["status"] == "ok":
             self.Log (Message = "Call-Flow-Control has accepted request to place call.")
             B_Leg_ID = Response["call"]["id"]
             A_Leg_ID = None
