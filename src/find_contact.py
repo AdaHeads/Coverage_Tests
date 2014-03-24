@@ -29,7 +29,7 @@ class Test_Case (unittest.TestCase):
         if self.Start_Time is None:
             self.Start_Time = clock ()
 
-        logging.info ("Step " + str (self.Next_Step) + "@" + str (clock() - self.Start_Time) + ": " + Message)
+        logging.info ("Step " + str (self.Next_Step) + ": " + Message)
         sleep (Delay_In_Seconds)
         self.Next_Step = self.Next_Step + 1
 
@@ -41,6 +41,6 @@ class Test_Case (unittest.TestCase):
         if self.Start_Time is None:
             self.Start_Time = clock ()
 
-        logging.info ("     " + str (self.Next_Step - 1) + "@" + str (clock() - self.Start_Time) + ": " + Message)
+        logging.info ("     " + str (self.Next_Step - 1) + ": " + Message)
         sleep (Delay_In_Seconds)
 
