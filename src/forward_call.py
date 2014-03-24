@@ -125,6 +125,7 @@ class Test_Case (unittest.TestCase):
             self.Log (Message = "Call-Flow-Control has accepted request to place call.")
             B_Leg_ID = Response["call"]["id"]
             A_Leg_ID = None
+            Iterations = 0
 
             while A_Leg_ID is None:
                 self.Receptionist.event_stack.WaitFor (event_type = "call_state")
@@ -136,6 +137,10 @@ class Test_Case (unittest.TestCase):
                 else:
                     self.Log (Message          = "...with non-matching B leg.",
                               Delay_In_Seconds = 0.100)
+
+                Iterations = Iterations + 1
+                if Iterations > 50:
+                    raise Call_Failure ("Call-Flow-Control didn't send a matching 'call_state' event within 5 seconds.")
         else:
             self.Log (Message = "Receptionist failed to place call.")
             raise Call_Failure ("Failed to call " + str (Number) + ".")
