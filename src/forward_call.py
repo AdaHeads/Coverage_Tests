@@ -128,9 +128,14 @@ class Test_Case (unittest.TestCase):
 
             while A_Leg_ID is None:
                 self.Receptionist.event_stack.WaitFor (event_type = "call_state")
+                self.Log (Message = "Call-Flow-Control sent a 'call_state' event...")
                 Event = self.Receptionist.event_stack.Get_Latest_Event (Event_Type = "call_state")
-                self.Log ("Received 'call_state' event: " + str (Event))
-                raise Call_Failure ("Receptionist_Places_Call is not completely implemented yet.")
+                if B_Leg_ID == Event["call"]["b_leg"]:
+                    self.Log (Message = "...with matching B leg.")
+                    A_Leg_ID = Event["call"]["id"]
+                else:
+                    self.Log (Message          = "...with non-matching B leg.",
+                              Delay_In_Seconds = 0.100)
         else:
             self.Log (Message = "Receptionist failed to place call.")
             raise Call_Failure ("Failed to call " + str (Number) + ".")
