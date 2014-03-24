@@ -131,7 +131,7 @@ class Test_Case (unittest.TestCase):
                 Event = self.Receptionist.event_stack.Get_Latest_Event (Event_Type = "call_state")
                 self.Log ("Received 'call_state' event: " + str (Event))
                 raise Call_Failure ("Receptionist_Places_Call is not completely implemented yet.")
-        else
+        else:
             self.Log (Message = "Receptionist failed to place call.")
             raise Call_Failure ("Failed to call " + str (Number) + ".")
 
