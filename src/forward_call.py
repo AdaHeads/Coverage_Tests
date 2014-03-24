@@ -15,6 +15,7 @@ from static_agent_pools      import Receptionists, Customers
 logging.basicConfig (level = logging.INFO)
 
 class Call_Failure (Exception):
+    pass
 
 class Test_Case (unittest.TestCase):
     Caller             = None
