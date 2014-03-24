@@ -116,7 +116,9 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Places_Call (self, Number):
         self.Step (Message = "Receptionist places call to " + str (Number) + "...")
-        self.Receptionist.dial (Number)
+        JSON_Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "1@1",
+                                                                            extension = Number)
+        self.Log(Message = "Originate response: " + str (JSON_Response) + " (check for the B-leg field)")
         self.Log (Message = "Receptionist has placed call.")
 
     def Receptionist_Hears_Dialtone (self):
