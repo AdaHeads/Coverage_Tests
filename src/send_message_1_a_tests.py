@@ -7,7 +7,7 @@ from config       import queued_reception as Reception
 class Sequence_Diagram (Test_Case):
     def test_Run (self):
         try:
-            self.Preconditions (Reception = Reception)
+            self.Preconditions ()
 
             self.Step (Message = "Receptionist-N     ->> Klient-N          [taster: navn]")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: fokus-besked-tekst]")
