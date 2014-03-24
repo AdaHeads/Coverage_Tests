@@ -14,6 +14,8 @@ from static_agent_pools      import Receptionists, Customers
 
 logging.basicConfig (level = logging.INFO)
 
+class Call_Failure (Exception):
+
 class Test_Case (unittest.TestCase):
     Caller             = None
     Receptionist       = None
@@ -116,10 +118,21 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Places_Call (self, Number):
         self.Step (Message = "Receptionist places call to " + str (Number) + "...")
-        JSON_Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "1@1",
-                                                                            extension = Number)
-        self.Log(Message = "Originate response: " + str (JSON_Response) + " (check for the B-leg field)")
-        self.Log (Message = "Receptionist has placed call.")
+        Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "1@1",
+                                                                       extension = Number)
+        if Response["status"] = "ok":
+            self.Log (Message = "Call-Flow-Control has accepted request to place call.")
+            B_Leg_ID = Response["call"]["id"]
+            A_Leg_ID = None
+
+            while A_Leg_ID is None:
+                self.Receptionist.event_stack.WaitFor (event_type = "call_state")
+                Event = self.Receptionist.event_stack.Get_Latest_Event (Event_Type = "call_state")
+                self.Log ("Received 'call_state' event: " + str (Event))
+                raise Call_Failure ("Receptionist_Places_Call is not completely implemented yet.")
+        else
+            self.Log (Message = "Receptionist failed to place call.")
+            raise Call_Failure ("Failed to call " + str (Number) + ".")
 
     def Receptionist_Hears_Dialtone (self):
         self.Step (Message = "Receptionist hears dial-tone...")
