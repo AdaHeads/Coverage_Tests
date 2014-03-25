@@ -20,10 +20,10 @@ class Server_400(Exception):
 class Unspecified_Server_Error(Exception):
     pass
 
-class callFlowServer:
+class Database_Organization:
 
     class protocol:
-        call_namespace  = "/call"
+        call_namespace  = "/organization"
         callHangup      = call_namespace + "/hangup"
         callList        = call_namespace + "/list"
         callQueue       = call_namespace + "/queue"
@@ -53,12 +53,9 @@ class callFlowServer:
         return headers['status'] == '200'
 
     def Request (self, path, method="GET", params={}):
-
-        uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
-
-        self.log.debug(method + " " + uri_path)
+        self.log.info(method + " " + path + " " + urlencode(params))
         try:
-
+            uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
 
             if method == 'POST':
                 headers, body = self.http.request(uri_path , method,
@@ -103,12 +100,6 @@ class callFlowServer:
     def Originate_Specific (self, context, phone_id):
         headers, body = self.Request(self.protocol.callOriginate, "POST",
                                      params={'context' : context, 'phone_id' : phone_id})
-
-        return json.loads (body)
-
-    def TransferCall (self, source, destination):
-        headers, body = self.Request(self.protocol.callTransfer, "POST",
-                                     params={'source' : source, 'destination' : destination})
 
         return json.loads (body)
 
