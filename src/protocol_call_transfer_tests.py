@@ -1,12 +1,6 @@
 __author__ = 'krc'
 
-import config
 import logging
-
-
-# Exceptions
-from call_flow_communication import Server_404
-from call_utils import NotFound
 
 try:
     import unittest2 as unittest
@@ -23,7 +17,7 @@ class Transfer(unittest.TestCase):
         pass
 
         receptionist = Receptionists.request()
-        self.log.info("Got receptionst " + receptionist.to_string())
+        self.log.info("Got receptionist " + receptionist.to_string())
         customer     = Customers.request()
         callee       = Customers.request()
 
@@ -32,7 +26,7 @@ class Transfer(unittest.TestCase):
 
             customer.sip_phone.Dial(reception)
 
-            self.log.info ("Wating for the call to be received by the PBX.")
+            self.log.info ("Waiting for the call to be received by the PBX.")
             receptionist.event_stack.WaitFor(event_type="call_offer")
             offer_event = receptionist.event_stack.Get_Latest_Event (Event_Type  = "call_offer",
                                                                      Destination = reception)
