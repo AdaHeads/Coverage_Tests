@@ -7,6 +7,8 @@ try:
 except ImportError:
     import unittest
 
+from pprint import pformat
+
 from static_agent_pools import Receptionists, Customers
 
 class Transfer(unittest.TestCase):
@@ -58,6 +60,7 @@ class Transfer(unittest.TestCase):
             customer.release()
             callee.release()
         except:
+            self.log.error("Event stack: " + pformat (receptionist.event_stack.dump_stack ()))
             receptionist.release()
             customer.release()
             callee.release()
