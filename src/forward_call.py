@@ -122,7 +122,7 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Places_Call (self, Number):
         self.Step (Message = "Receptionist places call to " + str (Number) + "...")
-        Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "1@1",
+        Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "@2",
                                                                        extension = Number)
         if Response["status"] == "ok":
             self.Log (Message = "Call-Flow-Control has accepted request to place call.")
@@ -165,6 +165,26 @@ class Test_Case (unittest.TestCase):
         else:
             if Call_Information['call']['greeting_played']:
                 self.fail ("It appears that the receptionist waited too long, and allowed the caller to hear the recorded message.")
+
+    def Receptionist_Forwards_Call (self, Incoming_Call, Outgoing_Call):
+        self.Step (Message = "Receptionist forwards call...")
+
+        self.Log (Message = "Waiting for 'call_pickup' event...")
+        self.Receptionist.event_stack.WaitFor (event_type = "call_pickup")
+
+        self.Log (Message = "Grabbing the 'call_pickup' event...")
+        originate_event = self.Receptionist.event_stack.Get_Latest_Event (Event_Type = "call_pickup")
+
+        self.assertEquals (originate_event['call']['b_leg'], Outgoing_Call)
+
+        self.Log (Message = "Transfer the incoming call to the A leg of the outgoing call...")
+        self.Receptionist.call_control.TransferCall (source      = originate_event['call']['id'],
+                                                     destination = Incoming_Call)
+
+        self.Log (Message = "Waiting for the 'call_transfer' event...")
+        self.Receptionist.event_stack.WaitFor (event_type = "call_transfer")
+
+        self.Log (Message = "Receptionist has forwarded call.")
 
     def Callee_Receives_Call (self):
         self.Step (Message = "Callee receives call...")
