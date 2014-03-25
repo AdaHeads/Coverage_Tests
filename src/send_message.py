@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from time       import clock, sleep
 
@@ -6,9 +7,13 @@ try:
 except ImportError:
     import unittest
 
-logging.basicConfig (level = logging.INFO)
+from database_message        import Database_Message
+from static_agent_pools      import Receptionists
+
+import config
 
 class Test_Case (unittest.TestCase):
+    Message_Database   = None
     Start_Time         = None
     Next_Step          = 1
 
@@ -16,10 +21,19 @@ class Test_Case (unittest.TestCase):
         self.Start_Time = clock ()
         self.Next_Step  = 1
 
-        self.Log ("Find contact test case: Setting up preconditions...")
+        self.Log ("Send message test case: Setting up preconditions...")
+
+        self.Log ("Requesting a receptionist...")
+        self.Receptionist = Receptionists.request ()
+
+        self.Log ("Select a reception database connection...")
+        self.Message_Database = Database_Message (uri       = config.message_server_uri,
+                                                  authtoken = self.Receptionist.call_control.authtoken)
+
+        self.Log ("Send message test case: Preconditions set up.")
 
     def Postprocessing (self):
-        self.Log ("Find contact test case: Cleaning up after test...")
+        self.Log ("Send message test case: Cleaning up after test...")
 
     def Step (self,
               Message,
@@ -43,4 +57,11 @@ class Test_Case (unittest.TestCase):
 
         logging.info ("     " + str (self.Next_Step - 1) + ": " + Message)
         sleep (Delay_In_Seconds)
+
+    def Receptionist_Send_Message (self):
+        self.Step (Message = "Receptionist sends a message...")
+        self.Message_Database.Request(path   = Database_Message.Protocol.send,
+                                      method = "POST",
+                                      params = "{\"to\": [\"1@1\"], \"message\": \"Jens må gerne ringe til Peter.\"}")
+        self.Step (Message = "Receptionist has sent message.")
 
