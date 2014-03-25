@@ -26,6 +26,8 @@ class Transfer(unittest.TestCase):
         try:
             reception = "12340001"
 
+            callee.sip_phone.disable_auto_answer()
+            
             customer.sip_phone.Dial(reception)
 
             self.log.info ("Waiting for the call to be received by the PBX.")
@@ -43,7 +45,6 @@ class Transfer(unittest.TestCase):
             outbound_call = receptionist.call_control.Originate_Arbitrary (context="@2", extension="port"+callee.sip_port)
 
             self.log.info ("Outbound call id: " + str(outbound_call['call']['id']))
-
 
             receptionist.event_stack.WaitFor(event_type="call_pickup")
 
