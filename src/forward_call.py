@@ -217,8 +217,10 @@ class Test_Case (unittest.TestCase):
             logging.critical (self.Receptionist.event_stack.dump_stack ())
             self.fail ("The arrived call offer was not for the expected reception (destination).")
 
-        return self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=Reception)['call']['id'],\
-               self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=Reception)['call']['reception_id']
+        Event = self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=Reception)
+
+        return Event['call']['id'],\
+               Event['call']['reception_id']
 
     def Call_Announced_As_Locked (self, Call_ID):
         self.Step (Message = "Call-Flow-Control sends out 'call_lock'...")
