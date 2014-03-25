@@ -27,7 +27,7 @@ class Transfer(unittest.TestCase):
             reception = "12340001"
 
             callee.sip_phone.disable_auto_answer()
-            
+
             customer.sip_phone.Dial(reception)
 
             self.log.info ("Waiting for the call to be received by the PBX.")
