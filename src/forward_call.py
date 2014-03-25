@@ -133,7 +133,7 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Hangs_Up (self, Call_ID):
         self.Step (Message = "Receptionist hangs up...")
-        self.Receptionist.Hangup_Current_Call (call_id = Call_ID)
+        self.Receptionist.hang_up (call_id = Call_ID)
         self.Log (Message = "Succeeded hanging up " + str (Call_ID) + ".")
 
     def Receptionist_Receives_Call (self):
