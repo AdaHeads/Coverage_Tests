@@ -12,8 +12,7 @@ import config
 from event_stack             import TimeOutReached
 from database_reception      import Database_Reception
 from static_agent_pools      import Receptionists, Customers
-
-logging.basicConfig (level = logging.INFO)
+from config                  import queued_reception as Reception
 
 class Call_Failure (Exception):
     pass
@@ -26,12 +25,10 @@ class Test_Case (unittest.TestCase):
 
     Reception_Database = None
 
-    Reception          = None
-
     Start_Time         = None
     Next_Step          = 1
 
-    def Preconditions (self, Reception):
+    def Preconditions (self):
         self.Start_Time = clock ()
         self.Next_Step  = 1
 
@@ -52,15 +49,12 @@ class Test_Case (unittest.TestCase):
         self.Log ("Put callee agent on manual answer...")
         self.Callee.sip_phone.disable_auto_answer ()
 
-        self.Log ("Select which reception to test...")
-        self.Reception    = Reception
-
         self.Log ("Select a reception database connection...")
         self.Reception_Database = Database_Reception (uri       = config.reception_server_uri,
                                                       authtoken = self.Receptionist.call_control.authtoken)
 
         self.Next_Step = 0
-        self.Caller_Places_Call (Number = self.Reception)
+        self.Caller_Places_Call (Number = Reception)
 
         self.Next_Step = 0
         Call_ID, Reception_ID = self.Call_Announced ()
@@ -70,6 +64,8 @@ class Test_Case (unittest.TestCase):
                                     Call_ID           = Call_ID)
 
         self.Log ("Forward call test case: Preconditions set up.")
+        self.Log ("Forward call test case: Returning ID of incoming call...")
+        return Call_ID
 
     def Postprocessing (self):
         self.Step ("Forward call test case: Cleaning up after test...")
@@ -217,12 +213,12 @@ class Test_Case (unittest.TestCase):
             self.fail ("Call offer didn't arrive from Call-Flow-Control.")
 
         if not self.Receptionist.event_stack.stack_contains (event_type="call_offer",
-                                                             destination=self.Reception):
+                                                             destination=Reception):
             logging.critical (self.Receptionist.event_stack.dump_stack ())
             self.fail ("The arrived call offer was not for the expected reception (destination).")
 
-        return self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['id'],\
-               self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=self.Reception)['call']['reception_id']
+        return self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=Reception)['call']['id'],\
+               self.Receptionist.event_stack.Get_Latest_Event (Event_Type="call_offer", Destination=Reception)['call']['reception_id']
 
     def Call_Announced_As_Locked (self, Call_ID):
         self.Step (Message = "Call-Flow-Control sends out 'call_lock'...")
@@ -236,7 +232,7 @@ class Test_Case (unittest.TestCase):
             self.fail ("No 'call_lock' event arrived from Call-Flow-Control.")
 
         if not self.Receptionist.event_stack.stack_contains (event_type  = "call_lock",
-                                                             destination = self.Reception,
+                                                             destination = Reception,
                                                              call_id     = Call_ID):
             logging.critical (self.Receptionist.event_stack.dump_stack ())
             self.fail ("The arrived 'call_lock' event was not for the expected reception (destination).")
@@ -252,7 +248,7 @@ class Test_Case (unittest.TestCase):
             self.fail ("No 'call_unlock' event arrived from Call-Flow-Control.")
 
         if not self.Receptionist.event_stack.stack_contains (event_type  = "call_unlock",
-                                                             destination = self.Reception,
+                                                             destination = Reception,
                                                              call_id     = Call_ID):
             logging.critical (self.Receptionist.event_stack.dump_stack ())
             self.fail ("The arrived 'call_unlock' event was not for the expected reception (destination).")
