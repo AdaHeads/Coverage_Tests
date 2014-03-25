@@ -196,7 +196,7 @@ class Test_Case (unittest.TestCase):
         self.Callee.sip_phone.pickup_call ()
         self.Log (Message = "Callee agent has picked up the incoming call.")
 
-    def Callee_Receives_Hangup (self):
+    def Callee_Receives_Hang_Up (self):
         self.Step (Message = "Callee receives hangup on active call...")
 
         self.Log (Message = "Callee agent waits for hangup on active call...")
