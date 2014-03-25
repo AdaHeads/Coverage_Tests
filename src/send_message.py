@@ -68,6 +68,6 @@ class Test_Case (unittest.TestCase):
         self.Step (Message = "Receptionist sends a message...")
         self.Message_Database.Request(path   = Database_Message.Protocol.send,
                                       method = "POST",
-                                      params = "{\"to\": [\"1@1\"], \"message\": \"Jens må gerne ringe til Peter.\"}")
+                                      params = "{\"to\": [\"1@1\"], \"message\": \"Jens, Please call Peter.\"}")
         self.Step (Message = "Receptionist has sent message.")
 
