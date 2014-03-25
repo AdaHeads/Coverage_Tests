@@ -83,6 +83,8 @@ class Test_Case (unittest.TestCase):
         if not self.Callee is None:
             self.Callee.release ()
 
+        self.Step ("Forward call test case: Done cleaning up after test.")
+
     def Step (self,
               Message,
               Delay_In_Seconds = 0.0):

@@ -13,6 +13,7 @@ from static_agent_pools      import Receptionists
 import config
 
 class Test_Case (unittest.TestCase):
+    Receptionist       = None
     Message_Database   = None
     Start_Time         = None
     Next_Step          = 1
@@ -33,7 +34,12 @@ class Test_Case (unittest.TestCase):
         self.Log ("Send message test case: Preconditions set up.")
 
     def Postprocessing (self):
-        self.Log ("Send message test case: Cleaning up after test...")
+        self.Step ("Send message test case: Cleaning up after test...")
+
+        if not self.Receptionist is None:
+            self.Receptionist.release ()
+
+        self.Step ("Send message test case: Done cleaning up after test.")
 
     def Step (self,
               Message,
