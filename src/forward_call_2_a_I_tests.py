@@ -2,12 +2,11 @@
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-opkald-videre#wiki-variant-2ai-1
 
 from forward_call import Test_Case
-from config       import queued_reception as Reception
 
 class Sequence_Diagram (Test_Case):
     def test_Run (self):
         try:
-            self.Preconditions (Reception = Reception)
+            Incoming_Call_ID = self.Preconditions ()
 
             self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: liste-med-sekundaere-numre]")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [pil op/ned - nogle gange]")
@@ -28,7 +27,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "Telefon-N          ->> Receptionist-N    [snak]")
             self.Step (Message = "=== end loop ===")
             self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: stil-igennem]")
-            self.Receptionist_Forwards_Call (Incoming_Call = Call_ID,
+            self.Receptionist_Forwards_Call (Incoming_Call = Incoming_Call_ID,
                                              Outgoing_Call = Outgoing_Call_ID)
             self.Step (Message = "Klient-N           ->> Klient-N          [ny tilstand: ledig]")
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [connect: incoming, outgoing]")
