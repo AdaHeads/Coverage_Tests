@@ -21,7 +21,7 @@ class Pickup(unittest.TestCase):
 
     def test_pickup_unspecified(self):
 
-        reception_id = 1
+        reception_id = 4
         reception = "1234000" + str(reception_id)
 
         receptionist = Receptionists.request()

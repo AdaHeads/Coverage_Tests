@@ -24,7 +24,7 @@ class Park(unittest.TestCase):
         """
         Tests if call unpark events occur when a call is being hung up while in a parking lot.
         """
-        reception = "12340001"
+        reception = "12340006"
 
         receptionist = Receptionists.request()
         customer     = Customers.request()
@@ -83,7 +83,7 @@ class Park(unittest.TestCase):
         """
         Tests the /call/park interface on a known call.
         """
-        reception = "12340001"
+        reception = "12340005"
 
         receptionist = Receptionists.request()
         customer     = Customers.request()

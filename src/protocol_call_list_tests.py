@@ -31,7 +31,7 @@ class List(unittest.TestCase):
         customer = Customers.request()
 
         try:
-            reception = "12340001"
+            reception = "12340004"
 
             self.log.info ("Customer " + customer.username + " dials " + reception)
             customer.sip_phone.Dial(reception)

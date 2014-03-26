@@ -51,7 +51,7 @@ class Hangup(unittest.TestCase):
         test_customer = Customers.request()
 
         try:
-            reception = "12340001"
+            reception = "12340003"
 
             self.log.info ("Customer " + test_customer.username + " dials " + reception)
             test_customer.sip_phone.Dial(reception)
@@ -80,7 +80,7 @@ class Hangup(unittest.TestCase):
         test_receptionist = Receptionists.request()
 
         try:
-            reception = "12340001"
+            reception = "12340004"
 
 
             try:

@@ -26,8 +26,8 @@ class Originate(unittest.TestCase):
         receptionist = Receptionists.request()
 
         try:
-            context = "2@1"
-            phone_id = "2"
+            context = "1@2"
+            phone_id = "12"
 
             self.log.info ("Receptionist " + receptionist.username + " dials phone id" + phone_id + \
                            " in context " + context)
