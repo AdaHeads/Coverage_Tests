@@ -25,6 +25,7 @@ class Transfer(unittest.TestCase):
 
         try:
             reception = "12340003"
+            origination_context = 2
 
             callee.sip_phone.disable_auto_answer()
 
@@ -48,7 +49,7 @@ class Transfer(unittest.TestCase):
             receptionist.sip_phone.wait_for_hangup()
 
             outbound_call = receptionist.call_control.Originate_Arbitrary \
-                (context="@2", extension="port"+callee.sip_port)
+                (context="@"+str(origination_context), extension="port"+callee.sip_port)
 
             self.log.info ("Outbound call id: " + str(outbound_call['call']['id']))
 
@@ -61,7 +62,14 @@ class Transfer(unittest.TestCase):
 
             self.assertEquals(originate_event['call']['b_leg'], outbound_call['call']['id'])
 
-            receptionist.call_control.TransferCall (source=originate_event['call']['id'], destination=call['id'])
+            outbound_call = originate_event['call'];
+
+            # Validate that the object matches the expected.
+            self.assertEquals(origination_context, outbound_call['reception_id'])
+            self.assertEquals(receptionist.ID, outbound_call['assigned_to'])
+            self.assertEquals(receptionist.username, outbound_call['caller_id'])
+
+            receptionist.call_control.TransferCall (source=outbound_call['id'], destination=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_transfer")
 
             self.log.info ("Waiting for the receptionist phone to hang up.")
@@ -96,6 +104,7 @@ class Transfer(unittest.TestCase):
 
         try:
             reception = "12340003"
+            origination_context = 5
 
             callee.sip_phone.disable_auto_answer()
 
@@ -118,7 +127,7 @@ class Transfer(unittest.TestCase):
             receptionist.sip_phone.wait_for_hangup()
 
             outbound_channel = receptionist.call_control.Originate_Arbitrary \
-                (context="@5", extension="port"+callee.sip_port)
+                (context="@"+str(origination_context), extension="port"+callee.sip_port)
 
             self.log.info ("Outbound channel: " + str(outbound_channel['call']['id']))
 
@@ -132,6 +141,11 @@ class Transfer(unittest.TestCase):
             self.assertEquals(originate_event['call']['b_leg'], outbound_channel['call']['id'])
 
             outbound_call = originate_event['call'];
+
+            # Validate that the object matches the expected.
+            self.assertEquals(origination_context, outbound_call['reception_id'])
+            self.assertEquals(receptionist.ID, outbound_call['assigned_to'])
+            self.assertEquals(receptionist.username, outbound_call['caller_id'])
 
             self.log.info ("Receptionist parks the outbound call.")
             outbound_channel = receptionist.call_control.ParkCall(call_id=outbound_call['id'])
