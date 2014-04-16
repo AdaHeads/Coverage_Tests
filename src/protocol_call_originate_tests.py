@@ -2,7 +2,7 @@ __author__ = 'krc'
 
 import config
 import logging
-
+import time
 
 # Exceptions
 from call_flow_communication import Server_404, Server_400
@@ -26,13 +26,13 @@ class Originate(unittest.TestCase):
         receptionist = Receptionists.request()
 
         try:
-            context = "1@2"
-            phone_id = "12"
+            context = "3@1"
+            phone_id = "4"
 
             self.log.info ("Receptionist " + receptionist.username + " dials phone id" + phone_id + \
                            " in context " + context)
 
-            response = receptionist.call_control.Originate_Specific(context="2@1", phone_id=phone_id)
+            response = receptionist.call_control.Originate_Specific(context=context, phone_id=phone_id)
 
             self.log.info ("Receptionist " + receptionist.username + " Originated new call with ID " +
                            str(response['call']['id']))
@@ -49,7 +49,7 @@ class Originate(unittest.TestCase):
         receptionist = Receptionists.request()
 
         try:
-            context = "2@1"
+            context = "2@2"
             extension = "12340002"
 
             self.log.info ("Receptionist " + receptionist.username + " dials " + extension + " in context " + context)
@@ -61,6 +61,29 @@ class Originate(unittest.TestCase):
             receptionist.release()
         except:
             receptionist.release()
+            raise
+
+    def test_origination_to_known_peer(self):
+
+        receptionist = Receptionists.request()
+        customer     = Customers.request()
+
+        try:
+            context = "2@2"
+            extension = "port" + str(customer.sip_port);
+
+            self.log.info ("Receptionist " + receptionist.username + " dials " + extension + " in context " + context)
+
+            receptionist.call_control.Originate_Arbitrary(context=context, extension=extension)
+            #TODO Check that the call is picked up or that in any other way confirm that the origination
+            # was indedd a success.
+            time.sleep(10);
+
+            receptionist.release()
+            customer.release()
+        except:
+            receptionist.release()
+            customer.release()
             raise
 
     ##TODO; missing parameters.
