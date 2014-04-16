@@ -12,6 +12,9 @@ class Server_404(Exception):
     pass
 
 
+class Server_403(Exception):
+    pass
+
 class Server_401(Exception):
     pass
 
@@ -85,7 +88,7 @@ class Database_Message:
             elif headers['status'] == '401':
                 raise Server_401 (method + " " + path + " Response:" + body)
             elif headers['status'] == '403':
-                raise Server_401 (method + " " + path + " Response:" + body)
+                raise Server_403 (method + " " + path + " Response:" + body)
             elif headers['status'] == '400':
                 raise Server_400 (method + " " + path + " Response:" + body)
             elif headers['status'] != '200':

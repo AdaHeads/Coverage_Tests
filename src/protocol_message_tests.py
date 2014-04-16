@@ -18,24 +18,31 @@ try:
 except ImportError:
     import unittest
 
-subjects = ['You should call him back',
-            'The cheese has started to smell',
-            'Are you paying for that?',
-            'Imagination land called, they want Perry back',
-            'Aren\'t you a little too young be be building roller coasters?']
 
 messages = ["I'm selling these fine leather jackets",
             "Please call me back regarding stuff",
             "I love the smell of pastery",
             "Regarding your enlargement",
-            "Nigirian royalties wish to send you money"]
+            "Nigirian royalties wish to send you money",
+            'Call back soon',
+            'The cheese has started to smell',
+            'Are you paying for that?',
+            'Imagination land called',
+            'Roller coasters purchase']
 
-callees  = ["Some annoying guy",
-            "That one guy with the upper lip",
-            "This guy here",
-            "Hipster Hitler",
-            "Yo' Mamma",
-            "Batman"]
+callees  = ["Peter Paker",
+            "Bob Barker",
+            "Mister Green",
+            "Walter White",
+            "Boy Wonder",
+            "Batman,"
+            "Perry the Platypus",
+            "Ferb Fletcher",
+            "Phineas Flynn",
+            "Candace Flynn",
+            "Dr. Heinz Doofenshmirtz"]
+
+urgencies = [True, False]
 
 class Message(unittest.TestCase):
 
@@ -62,14 +69,42 @@ class Message(unittest.TestCase):
         self.server.draft_list()
 
     def test_message_send_single (self):
-        message = {"to"          : ["1@2", "4@2"],
-                   "cc"          : ["4@2"],
-                   "bcc"         : [],
+        #TODO: Extract the contact from the contact server.
+        message = {"to"          : [{
+                       "contact"   : {
+                           "id"   : 1,
+                           "name" : "A static person"},
+                       "reception" : {
+                           "id"   : 2,
+                           "name" : "Person 1"},
+                       },{
+                       "contact"   : {
+                           "id"   : 4,
+                           "name" : "Another static person"},
+                       "reception" : {
+                           "id"   : 2,
+                           "name" : "Person 2"},
+                       }],
+                   "cc"          : [{
+                       "contact"   : {
+                           "id"   : 3,
+                           "name" : "A third static person"},
+                       "reception" : {
+                           "id"   : 2,
+                           "name" : "Person 3"},
+                       }],
+                   #"bcc"         : [],
                    "message"     : random.choice(messages),
-                   "toContactID" : 1,
+                   "context"     : {
+                       "contact"   : {
+                           "id"   : 1,
+                           "name" : "A static person"},
+                       "reception" : {
+                           "id"   : 2,
+                           "name" : "Person 1"},
+                       },
                    "takenFrom"   : random.choice(callees),
-                   "urgent"      : True,
-                   "subject"     : random.choice(subjects)}
+                   "urgent"      : random.choice(urgencies)}
 
         self.server.message_send (message)
 
@@ -97,8 +132,7 @@ class Message(unittest.TestCase):
                  "message"     : random.choice(messages),
                  "toContactID" : 1,
                  "takenFrom"   : random.choice(callees),
-                 "urgent"      : True,
-                 "subject"     : random.choice(subjects)}
+                 "urgent"      : True}
 
         new_draft_id = self.server.draft_create (draft)['draft_id']
         new_draft    = self.server.draft_single(new_draft_id)['json'];
@@ -107,7 +141,6 @@ class Message(unittest.TestCase):
         assert (new_draft['cc']          == draft['cc'])
         assert (new_draft['message']     == draft['message'])
         assert (new_draft['toContactID'] == draft['toContactID'])
-        assert (new_draft['subject']     == draft['subject'])
 
         draft = {"to"          : ["1@2", "4@2"],
                  "cc"          : ["4@2"],
@@ -115,8 +148,7 @@ class Message(unittest.TestCase):
                  "message"     : random.choice(messages),
                  "toContactID" : 3,
                  "takenFrom"   : random.choice(callees),
-                 "urgent"      : True,
-                 "subject"     : random.choice(subjects)}
+                 "urgent"      : True}
 
         self.server.draft_update (new_draft_id, draft)
         new_draft    = self.server.draft_single(new_draft_id)['json'];
@@ -125,7 +157,6 @@ class Message(unittest.TestCase):
         assert (new_draft['cc']          == draft['cc'])
         assert (new_draft['message']     == draft['message'])
         assert (new_draft['toContactID'] == draft['toContactID'])
-        assert (new_draft['subject']     == draft['subject'])
 
         self.server.draft_remove (draft_id=new_draft_id)
 
