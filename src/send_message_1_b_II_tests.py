@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-en-besked#wiki-variant-1bii-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-en-besked#variant-1bii-1
 
 from send_message import Test_Case
 from config       import queued_reception as Reception

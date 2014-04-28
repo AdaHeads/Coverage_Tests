@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#wiki-variant-ii1-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-ii1-1
 
 from incoming_calls import Test_Case
 from config         import queued_reception as Reception
