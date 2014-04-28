@@ -1,9 +1,9 @@
-__author__ = 'krc'
+__author__ = 'krc, sparre'
 
 ####
 #
 #  Tests protocol interface documented at:
-#  https://github.com/AdaHeads/DatabaseServers/wiki/Server-Reception
+#  https://github.com/AdaHeads/DatabaseServers/wiki/Protocol-Message
 #
 
 import config
@@ -21,16 +21,16 @@ except ImportError:
 
 messages = ["I'm selling these fine leather jackets",
             "Please call me back regarding stuff",
-            "I love the smell of pastery",
+            "I love the smell of pastry",
             "Regarding your enlargement",
-            "Nigirian royalties wish to send you money",
+            "Nigerian royalties wish to send you money",
             'Call back soon',
             'The cheese has started to smell',
             'Are you paying for that?',
             'Imagination land called',
             'Roller coasters purchase']
 
-callees  = ["Peter Paker",
+callees  = ["Peter Parker",
             "Bob Barker",
             "Mister Green",
             "Walter White",
@@ -50,7 +50,7 @@ class Message(unittest.TestCase):
     server = Database_Message(uri=config.message_server_uri,authtoken=config.global_token)
 
     def test_CORS_headers_present(self):
-        self.log.info ("Asserting that CORS headers are present on non-exisisting resources.")
+        self.log.info ("Asserting that CORS headers are present on non-existing resources.")
         self.server.non_exisiting_path(exceptions=False)
 
         self.log.info ("Asserting that CORS headers are present on exisisting resources.")
@@ -135,7 +135,7 @@ class Message(unittest.TestCase):
                  "urgent"      : True}
 
         new_draft_id = self.server.draft_create (draft)['draft_id']
-        new_draft    = self.server.draft_single(new_draft_id)['json'];
+        new_draft    = self.server.draft_single(new_draft_id)['json']
 
         assert (new_draft['to']          == draft['to'])
         assert (new_draft['cc']          == draft['cc'])
@@ -151,7 +151,7 @@ class Message(unittest.TestCase):
                  "urgent"      : True}
 
         self.server.draft_update (new_draft_id, draft)
-        new_draft    = self.server.draft_single(new_draft_id)['json'];
+        new_draft    = self.server.draft_single(new_draft_id)['json']
 
         assert (new_draft['to']          == draft['to'])
         assert (new_draft['cc']          == draft['cc'])
