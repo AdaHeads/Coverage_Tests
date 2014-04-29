@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+#
+# Interface to the Call-Flow-Control server: https://github.com/AdaHeads/Call-Flow-Control
+
 import httplib2
 from urllib import urlencode
 import logging
@@ -113,11 +117,13 @@ class callFlowServer:
         return json.loads (body)
 
     def HangupCall (self, call_id):
+        # https://github.com/AdaHeads/call-flow-control/wiki/Protocol-Call-Hangup
+
         try:
             headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
 
             return json.loads (body)
-        except:
+        except Server_404:
             self.log.error ("Hanging up " + str (call_id) + " didn't succeed.  We assume that the call was terminated by other means.")
 
     def HangupAllCalls (self):
