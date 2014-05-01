@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'krc, sparre'
 
 ####
@@ -42,7 +43,62 @@ callees  = ["Peter Parker",
             "Candace Flynn",
             "Dr. Heinz Doofenshmirtz"]
 
-urgencies = [True, False]
+companies = ['Acme inc',
+             'Wayne Enterprise',
+             'Ghostbusters A/S',
+             'Slamtroldmanden',
+             'Kødbollen A/S',
+             'Blomme\'s Gartneri',
+             'Hummerspecialisten ApS',
+             'Gnaske-Grønt ApS',
+             'Firmanavn_der_fortæller_om_samtlige_produkter_hos_os A/S',
+             'BulgurKompaniget A/S',
+             'Andefødder Aps',
+             'Spirevippen I/S',
+             'Petersen\'s Globale Kobberudvinding',
+             'PingPong ApS',
+             'Kasper\'s Køkken A/S',
+             'Den Varme Radiator ApS',
+             'KludeCentralen ApS',
+             'MobileAdvolaterne A/S',
+             'Bogforlaget A/S',
+             'Revisor Søren ApS',
+             'Kalle\'s Dyrefoder ApS',
+             'Den Varme Radiator ApS',
+             'KludeCentralen ApS',
+             'MobileAdvolaterne A/S',
+             'Bogforlaget A/S',
+             'Revisor Søren ApS',
+             'Kalle\'s Dyrefoder ApS',
+             'Fantasibureauet A/S',
+             'Fem Flade fisk I/S',
+             'Advokatkontoret',
+             'Gave-Ideer ApS',
+             'Det Tredie Firmanavn I/S',
+             'Kraniosakralklinikken ApS',
+             'Hvalbøffer A/S',
+             'De gode ideer ApS',
+             'Super-supporten A/S',
+             'Doozerne A/S',
+             'Sublim Forskning A/S',
+             'Hårtotten ApS',
+             'Alt til katten A/S',
+             'Sjov og Spas',
+             'Humørbomben K/S',
+             'Kurts kartoffelskrællerservice',
+             'Det absolutte nulpunkt',
+             'Den hellige ko-kebab',
+             'Peters pottemageri',
+             'Reklamegas Aps',
+             'Lenes lækre lune lagner I/S',
+             'Grine-Gerts anti-depressiver',
+             'Kasse-kompaniet',
+             'Hårstiverne']
+
+flagsLists = [[],
+              ["willCallBack"],
+              ["urgent"],
+              ["urgent","willCallBack"]]
 
 class Message(unittest.TestCase):
 
@@ -64,47 +120,50 @@ class Message(unittest.TestCase):
 
         self.fail("Expected 404 here.")
 
+    def test_message_list(self):
+        self.server.message_list()
 
     def test_draft_list (self):
         self.server.draft_list()
 
     def test_message_send_single (self):
-        #TODO: Extract the contact from the contact server.
+        #TODO: Extract a random contact from the contact server.
         message = {"to"          : [{
                        "contact"   : {
-                           "id"   : 1,
-                           "name" : "A static person"},
-                       "reception" : {
                            "id"   : 2,
-                           "name" : "Person 1"},
+                           "name" : "Kim (AdaHeads)"},
+                       "reception" : {
+                           "id"   : 1,
+                           "name" : "AdaHeads K/S"},
                        },{
                        "contact"   : {
-                           "id"   : 4,
-                           "name" : "Another static person"},
-                       "reception" : {
                            "id"   : 2,
-                           "name" : "Person 2"},
+                           "name" : "Kim (FF)"},
+                       "reception" : {
+                           "id"   : 3,
+                           "name" : "Fishermans Friend"},
                        }],
                    "cc"          : [{
                        "contact"   : {
-                           "id"   : 3,
-                           "name" : "A third static person"},
+                           "id"   : 2,
+                           "name" : "Frede Fiskeglad"},
                        "reception" : {
                            "id"   : 2,
-                           "name" : "Person 3"},
+                           "name" : "Fredes Fisk"},
                        }],
                    #"bcc"         : [],
                    "message"     : random.choice(messages),
                    "context"     : {
                        "contact"   : {
-                           "id"   : 1,
-                           "name" : "A static person"},
+                           "id"   : 2,
+                           "name" : "Kim Rostgaard Christensen"},
                        "reception" : {
                            "id"   : 2,
-                           "name" : "Person 1"},
+                           "name" : random.choice(companies)},
                        },
-                   "takenFrom"   : random.choice(callees),
-                   "urgent"      : random.choice(urgencies)}
+                   "callee"       : { 'name'    : random.choice(callees),
+                                      'company' : random.choice(companies)},
+                   "flags"        : random.choice(flagsLists)}
 
         self.server.message_send (message)
 
