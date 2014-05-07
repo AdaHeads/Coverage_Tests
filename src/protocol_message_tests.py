@@ -29,10 +29,12 @@ messages = ["I'm selling these fine leather jackets",
             'The cheese has started to smell',
             'Are you paying for that?',
             'Imagination land called',
-            'Roller coasters purchase']
+            'Roller coasters purchase',
+            'These are not the droids you are looking for. Come to me for new ones!',
+            'All your base are belong',
+            "I would love to change the world, but they won't give me the source code"]
 
-callees  = ["Peter Parker",
-            "Bob Barker",
+callees  = ["Bob Barker",
             "Mister Green",
             "Walter White",
             "Boy Wonder",
@@ -41,7 +43,15 @@ callees  = ["Peter Parker",
             "Ferb Fletcher",
             "Phineas Flynn",
             "Candace Flynn",
-            "Dr. Heinz Doofenshmirtz"]
+            "Dr. Heinz Doofenshmirtz",
+            'Reed Richards (Mr. Fantastic)',
+            'Peter Parker (Spiderman)',
+            'Bruce Banner (the Hulk)',
+            'Matt Murdock (Daredevil)',
+            'Susan Storm (Invisible Girl)',
+            'Scott Summers (Cyclops)',
+            'Stephen Strange (Dr. Strange)',
+            'Darkwing Duck']
 
 companies = ['Acme inc',
              'Wayne Enterprise',
