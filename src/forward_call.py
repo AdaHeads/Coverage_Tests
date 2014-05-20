@@ -118,12 +118,13 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Places_Call (self, Number):
         self.Step (Message = "Receptionist places call to " + str (Number) + "...")
-        Response = self.Receptionist.call_control.Originate_Arbitrary (context   = "@2",
+        try:
+            Response = self.Receptionist.call_control.Originate_Arbitrary (contact_id = "2",
+                                                                       reception_id = "1",
                                                                        extension = Number)
-        if Response["status"] == "ok":
             self.Log (Message = "Call-Flow-Control has accepted request to place call.")
             return Response["call"]["id"]
-        else:
+        except:
             self.Log (Message = "Receptionist failed to place call.")
             raise Call_Failure ("Failed to call " + str (Number) + ".")
 
@@ -135,6 +136,10 @@ class Test_Case (unittest.TestCase):
         self.Step (Message = "Receptionist hangs up...")
         self.Receptionist.hang_up (call_id = Call_ID)
         self.Log (Message = "Succeeded hanging up " + str (Call_ID) + ".")
+
+    def Receptionist_Waits_For_Hang_Up (self):
+        self.Step (Message = "Receptionist waits for hangs up...")
+        self.Receptionist.event_stack.WaitFor (event_type = "call_pickup")
 
     def Receptionist_Receives_Call (self):
         self.Step (Message = "Receptionist receives call...")
