@@ -18,7 +18,7 @@ class TechnicalStuff(unittest.TestCase):
 
     # Make sure that the cors headers are present
     def test_CORS_present(self):
-        headers, body = self.cfs.Request(self.cfs.protocol.peerList)
+        headers, body = self.cfs.Request(self.cfs.protocol.callList)
         assert 'access-control-allow-origin' in headers or 'Access-Control-Allow-Origin' in headers
 
     def test_404_OK (self):
