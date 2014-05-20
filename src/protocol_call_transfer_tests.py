@@ -24,8 +24,9 @@ class Transfer(unittest.TestCase):
         callee       = Customers.request()
 
         try:
-            reception = "12340003"
-            origination_context = 2
+            reception    = "12340003"
+            reception_id = "1"
+            contact_id   = "2"
 
             callee.sip_phone.disable_auto_answer()
 
@@ -48,8 +49,9 @@ class Transfer(unittest.TestCase):
             receptionist.event_stack.WaitFor(event_type="call_park", call_id=call ['id'])
             receptionist.sip_phone.wait_for_hangup()
 
-            outbound_call = receptionist.call_control.Originate_Arbitrary \
-                (context="@"+str(origination_context), extension="port"+callee.sip_port)
+            outbound_call = receptionist.call_control.Originate_Arbitrary (reception_id = reception_id,
+                                                                           contact_id   = contact_id,
+                                                                           extension    ="port"+callee.sip_port)
 
             self.log.info ("Outbound call id: " + str(outbound_call['call']['id']))
 
@@ -65,7 +67,7 @@ class Transfer(unittest.TestCase):
             outbound_call = originate_event['call'];
 
             # Validate that the object matches the expected.
-            self.assertEquals(origination_context, outbound_call['reception_id'])
+            self.assertEquals(int(reception_id), outbound_call['reception_id'])
             self.assertEquals(receptionist.ID, outbound_call['assigned_to'])
             self.assertEquals(receptionist.username, outbound_call['caller_id'])
 
@@ -104,7 +106,8 @@ class Transfer(unittest.TestCase):
 
         try:
             reception = "12340003"
-            origination_context = 5
+            reception_id = "1"
+            contact_id   = "2"
 
             callee.sip_phone.disable_auto_answer()
 
@@ -126,8 +129,9 @@ class Transfer(unittest.TestCase):
             receptionist.event_stack.WaitFor(event_type="call_park", call_id=inbound_call ['id'])
             receptionist.sip_phone.wait_for_hangup()
 
-            outbound_channel = receptionist.call_control.Originate_Arbitrary \
-                (context="@"+str(origination_context), extension="port"+callee.sip_port)
+            outbound_channel = receptionist.call_control.Originate_Arbitrary (reception_id = reception_id,
+                                                                              contact_id   = contact_id,
+                                                                              extension    ="port"+callee.sip_port)
 
             self.log.info ("Outbound channel: " + str(outbound_channel['call']['id']))
 
@@ -143,7 +147,7 @@ class Transfer(unittest.TestCase):
             outbound_call = originate_event['call'];
 
             # Validate that the object matches the expected.
-            self.assertEquals(origination_context, outbound_call['reception_id'])
+            self.assertEquals(int(reception_id), outbound_call['reception_id'])
             self.assertEquals(receptionist.ID, outbound_call['assigned_to'])
             self.assertEquals(receptionist.username, outbound_call['caller_id'])
 

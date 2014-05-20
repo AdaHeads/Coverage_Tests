@@ -2,7 +2,7 @@ __author__ = 'krc'
 
 import config
 import logging
-
+import time;
 
 # Exceptions
 from call_flow_communication import Server_404
@@ -104,6 +104,7 @@ class Park(unittest.TestCase):
 
             receptionist.call_control.ParkCall (call_id=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_park", call_id=call['id'])
+
             receptionist.call_control.PickupCall (call_id=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_unpark", call_id=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_pickup", call_id=call['id'])
@@ -175,9 +176,10 @@ class Park(unittest.TestCase):
         Validates that in implicit park indeed occurs when originating a new call
         while having an active call. Doesn't use the /call/park interface
         """
-        reception = "12340001"
-        origination_context = "2@1"
-        origination_extension = "12340002"
+        reception   = "12340001"
+        contact_id   = "2"
+        reception_id = "1"
+        extension    = "12340002"
 
 
         receptionist = Receptionists.request()
@@ -197,8 +199,9 @@ class Park(unittest.TestCase):
             receptionist.event_stack.WaitFor(event_type="call_pickup",
                                                   call_id=call['id'])
 
-            receptionist.call_control.Originate_Arbitrary(context   = origination_context,
-                                                          extension = origination_extension)
+            receptionist.call_control.Originate_Arbitrary(extension    = extension,
+                                                          contact_id   = contact_id,
+                                                          reception_id = reception_id)
 
             receptionist.event_stack.WaitFor(event_type="call_park", call_id=call['id'])
 

@@ -26,13 +26,17 @@ class Originate(unittest.TestCase):
         receptionist = Receptionists.request()
 
         try:
-            context = "3@1"
-            phone_id = "4"
+            contact_id   = "2"
+            reception_id = "1"
+            extension    = "39990141"
 
-            self.log.info ("Receptionist " + receptionist.username + " dials phone id" + phone_id + \
-                           " in context " + context)
+            self.log.info ("Receptionist " + receptionist.username + " dials extension" + extension + \
+                           " in context " + contact_id + "@" + reception_id)
 
-            response = receptionist.call_control.Originate_Specific(context=context, phone_id=phone_id)
+            response = receptionist.dial(contact_id   = contact_id,
+                                         reception_id = reception_id,
+                                         extension    = extension)
+
 
             self.log.info ("Receptionist " + receptionist.username + " Originated new call with ID " +
                            str(response['call']['id']))
@@ -44,7 +48,7 @@ class Originate(unittest.TestCase):
             receptionist.release()
             raise
 
-    def test_origination_to_arbitrary_number(self):
+    def origination_to_arbitrary_number(self):
 
         receptionist = Receptionists.request()
 
@@ -63,7 +67,7 @@ class Originate(unittest.TestCase):
             receptionist.release()
             raise
 
-    def test_origination_to_known_peer(self):
+    def origination_to_known_peer(self):
 
         receptionist = Receptionists.request()
         customer     = Customers.request()
@@ -92,11 +96,14 @@ class Originate(unittest.TestCase):
         receptionist = Receptionists.request()
 
         try:
-            context = "2@1"
-            extension = ""
+            contact_id   = "2"
+            reception_id = "1"
+            extension    = "x"
 
             try:
-                receptionist.call_control.Originate_Arbitrary(context=context, extension="1")
+                response = receptionist.dial(contact_id   = contact_id,
+                                             reception_id = reception_id,
+                                             extension    = extension)
             except Server_400:
                 receptionist.release()
                 return
