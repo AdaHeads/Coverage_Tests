@@ -28,7 +28,7 @@ class callFlowServer:
 
     class protocol:
         call_namespace  = "/call"
-        callHangup      = call_namespace + "/hangup"
+        callHangup      = "/hangup"
         callList        = call_namespace + "/list"
         callQueue       = call_namespace + "/queue"
         callPark        = call_namespace + "/park"
@@ -92,15 +92,16 @@ class callFlowServer:
 
     def PickupCall (self, call_id=None):
         if call_id == None:
-            headers, body = self.Request(self.protocol.callPickup, "POST")
+            headers, body = self.Request("/call/pickup", "POST")
         else:
-            headers, body = self.Request(self.protocol.callPickup, "POST", params={'call_id' : call_id})
+            headers, body = self.Request("/call/" + call_id + "/pickup", "POST")
 
         return json.loads (body)
 
-    def Originate_Arbitrary (self, context, extension):
-        headers, body = self.Request(self.protocol.callOriginate, "POST",
-                                     params={'context' : context, 'extension' : extension})
+    def Originate_Arbitrary (self, contact_id, reception_id, extension):
+        path = "/call/originate/" + extension + "/reception/" + reception_id + "/contact/" + contact_id
+
+        headers, body = self.Request(path, "POST")
 
         return json.loads (body)
 
@@ -111,8 +112,8 @@ class callFlowServer:
         return json.loads (body)
 
     def TransferCall (self, source, destination):
-        headers, body = self.Request(self.protocol.callTransfer, "POST",
-                                     params={'source' : source, 'destination' : destination})
+        path = "/call/" + source + "/transfer/" + destination
+        headers, body = self.Request(path, "POST")
 
         return json.loads (body)
 
@@ -120,7 +121,7 @@ class callFlowServer:
         # https://github.com/AdaHeads/call-flow-control/wiki/Protocol-Call-Hangup
 
         try:
-            headers, body = self.Request(self.protocol.callHangup, "POST", params={'call_id' : call_id})
+            headers, body = self.Request("/call/" + call_id + "/hangup", "POST")
 
             return json.loads (body)
         except Server_404:
@@ -131,15 +132,15 @@ class callFlowServer:
             self.HangupCall(call['id'])
 
     def ParkCall (self, call_id=None):
-        if call_id == None:
-            headers, body = self.Request(self.protocol.callPark, "POST")
-        else:
-            headers, body = self.Request(self.protocol.callPark, "POST", params={'call_id' : call_id})
+        path = "/call/" + call_id + "/park"
+
+        headers, body = self.Request(path, "POST")
 
         return json.loads (body)
 
     def CallList (self):
-        headers, body = self.Request(self.protocol.callList)
+        path = "/call/list"
+        headers, body = self.Request(path)
 
         return CallList().fromJSON(body)
 
