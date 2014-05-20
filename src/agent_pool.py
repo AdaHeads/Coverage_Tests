@@ -32,6 +32,7 @@ class Agent:
     available = True
     username = None
     server = None
+    extension = None
     sip_port = None
     sip_phone = None
     call_control = None
@@ -44,7 +45,8 @@ class Agent:
                  sip_port=5060,
                  receptionist=False,
                  auth_token=None,
-                 pool=None):
+                 pool=None,
+                 extension=None):
 
         self.username     = username
         self.ID           = id
@@ -52,6 +54,7 @@ class Agent:
         self.sip_port     = str(sip_port) # TODO Convert to int all the way.
         self.agent_pool   = pool
         self.receptionist = receptionist
+        self.extension    = extension
 
         self.sip_phone    = SipAgent(account=SipAccount(username=self.username,
                                                         password=password,
@@ -87,12 +90,13 @@ class Agent:
         self.event_stack.WaitFor(event_type = "call_pickup",
                                  call_id    =  call_id)
 
-    def dial(self, end_point):
+    def dial(self, extension, contact_id=None, reception_id=None):
         if self.receptionist:
-            self.call_control.Originate_Arbitrary(context="1@1",
-                                                  extension=end_point)
+            return self.call_control.Originate_Arbitrary(contact_id   = contact_id,
+                                                         reception_id = contact_id,
+                                                         extension    = extension)
         else:
-            self.sip_phone.Dial(extension=end_point)
+            self.sip_phone.Dial(extension=extension)
 
     def hang_up(self, call_id=None):
         if self.receptionist:
@@ -151,11 +155,13 @@ class AgentPool:
                                          auth_token=agent_config['authtoken'],
                                          sip_port=agent_config['sipport'],
                                          receptionist=True,
+                                         extension=agent_config['extension'],
                                          pool=self))
             else:
                 self.agents.append(Agent(username=agent_config['username'],
                                          password=agent_config['password'],
                                          sip_port=agent_config['sipport'],
+                                         extension=agent_config['extension'],
                                          pool=self))
 
     def request(self):
