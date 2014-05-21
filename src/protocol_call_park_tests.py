@@ -24,7 +24,7 @@ class Park(unittest.TestCase):
         """
         Tests if call unpark events occur when a call is being hung up while in a parking lot.
         """
-        reception = "12340006"
+        reception = "12340005"
 
         receptionist = Receptionists.request()
         customer     = Customers.request()
@@ -37,7 +37,7 @@ class Park(unittest.TestCase):
 
             call = receptionist.call_control.PickupCall()
             if call['destination'] != reception:
-                self.fail ("Invalid reception ID in allocated call.")
+                self.fail ("Invalid reception extension in allocated call." + str(call))
 
             self.log.info ("Got call " + call['id'] + " waiting for transfer..")
             receptionist.event_stack.WaitFor(event_type="call_pickup",
