@@ -22,10 +22,11 @@ class Peer(unittest.TestCase):
     log = logging.getLogger(__name__ + ".Peer")
 
     def test_event_and_list_presence(self):
+        receptionist = Receptionists.request()
+
         try: #py.test src/protocol_peer_tests.py
 
             self.log.info ("Unregistering agent to assert that we get a registration event.")
-            receptionist = Receptionists.request()
             receptionist.sip_phone.Unregister()
 
 
