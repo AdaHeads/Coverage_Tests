@@ -72,12 +72,16 @@ class Test_Case (unittest.TestCase):
 
         if not self.Caller is None:
             self.Caller.release ()
+            self.Caller = None;
         if not self.Receptionist is None:
             self.Receptionist.release ()
+            self.Receptionist = None;
         if not self.Receptionist_2 is None:
             self.Receptionist_2.release ()
+            self.Receptionist_2 = None;
         if not self.Callee is None:
             self.Callee.release ()
+            self.Callee = None;
 
         self.Step ("Forward call test case: Done cleaning up after test.")
 
@@ -139,7 +143,7 @@ class Test_Case (unittest.TestCase):
 
     def Receptionist_Waits_For_Hang_Up (self):
         self.Step (Message = "Receptionist waits for hangs up...")
-        self.Receptionist.event_stack.WaitFor (event_type = "call_pickup")
+        self.Receptionist.event_stack.WaitFor (event_type = "call_hangup")
 
     def Receptionist_Receives_Call (self):
         self.Step (Message = "Receptionist receives call...")
