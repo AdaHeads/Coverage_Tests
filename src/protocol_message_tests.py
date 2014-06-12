@@ -34,7 +34,7 @@ messages = ["I'm selling these fine leather jackets",
             'All your base are belong',
             "I would love to change the world, but they won't give me the source code"]
 
-callees  = ["Bob Barker",
+callers  = ["Bob Barker",
             "Mister Green",
             "Walter White",
             "Boy Wonder",
@@ -171,7 +171,7 @@ class Message(unittest.TestCase):
                            "id"   : 2,
                            "name" : random.choice(companies)},
                        },
-                   "callee"       : { 'name'    : random.choice(callees),
+                   "caller"       : { 'name'    : random.choice(callers),
                                       'company' : random.choice(companies)},
                    "flags"        : random.choice(flagsLists)}
 
@@ -200,7 +200,7 @@ class Message(unittest.TestCase):
                  "bcc"         : [],
                  "message"     : random.choice(messages),
                  "toContactID" : 1,
-                 "takenFrom"   : random.choice(callees),
+                 "takenFrom"   : random.choice(callers),
                  "urgent"      : True}
 
         new_draft_id = self.server.draft_create (draft)['draft_id']
@@ -216,7 +216,7 @@ class Message(unittest.TestCase):
                  "bcc"         : [],
                  "message"     : random.choice(messages),
                  "toContactID" : 3,
-                 "takenFrom"   : random.choice(callees),
+                 "takenFrom"   : random.choice(callers),
                  "urgent"      : True}
 
         self.server.draft_update (new_draft_id, draft)
