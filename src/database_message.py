@@ -77,7 +77,7 @@ class Database_Message:
 
         except:
             logging.error("Reception JSON-database gateway unreachable!")
-            raise
+
             raise Server_Unavailable (uri_path)
 
         assert 'access-control-allow-origin' in headers or 'Access-Control-Allow-Origin' in headers
