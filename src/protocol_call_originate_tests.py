@@ -41,7 +41,7 @@ class Originate(unittest.TestCase):
             self.log.info ("Receptionist " + receptionist.username + " Originated new call with ID " +
                            str(response['call']['id']))
             #TODO Check that the call is picked up or that in any other way confirm that the origination
-            # was indedd a success.
+            # was indeed a success.
 
             receptionist.release()
         except:

@@ -166,6 +166,7 @@ class Park(unittest.TestCase):
             customer.release()
             customer2.release()
         except:
+            self.log.info(receptionist.event_stack.dump_stack())
             receptionist.release()
             customer.release()
             customer2.release()

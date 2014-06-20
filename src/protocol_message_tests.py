@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = 'krc, sparre'
+__author__ = 'krc'
 
 ####
 #

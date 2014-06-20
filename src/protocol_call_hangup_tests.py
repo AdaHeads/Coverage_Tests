@@ -51,7 +51,7 @@ class Hangup(unittest.TestCase):
         test_customer = Customers.request()
 
         try:
-            reception = "12340003"
+            reception = "12340001"
 
             self.log.info ("Customer " + test_customer.username + " dials " + reception)
             test_customer.sip_phone.Dial(reception)
@@ -76,6 +76,7 @@ class Hangup(unittest.TestCase):
             test_receptionist.release()
             test_customer.release()
         except:
+            self.log.debug(test_receptionist.event_stack.dump_stack())
             test_receptionist.release()
             test_customer.release()
             raise

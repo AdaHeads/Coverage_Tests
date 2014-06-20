@@ -118,7 +118,8 @@ class EventListenerThread(threading.Thread):
         self.open = False
 
     def on_message(self, ws, message):
-        self.messageStack.append(json.loads(message)['notification'])
+        self.log.info(message)
+        self.messageStack.append(json.loads(message))
 
     def connect (self):
         full_uri= self.ws_uri +  "?token=" + self.authtoken

@@ -33,11 +33,13 @@ class SipAgent:
     account    = None
     binaryPath = None
     __process  = None
+    failed     = None
 
     def __init__ (self, account, binaryPath=config.sip_binary_path):
         self.log = logging.getLogger(self.__class__.__name__)
         self.account    = account
         self.binaryPath = binaryPath
+        self.failed     = False
 
     def Connected(self):
         return not self.__process is None
@@ -54,10 +56,10 @@ class SipAgent:
                                        stdin=PIPE,
                                        stdout=PIPE)
             except:
-                self.log.fatal("Process spawinging failed, check path! ")
+                self.log.fatal("Process spawning failed, check path! ")
                 raise Process_Failure (self.binaryPath)
 
-            # Waint for the account to become ready.
+            # Wait for the account to become ready.
             self.__waitFor("+READY")
 
         return self
@@ -74,7 +76,7 @@ class SipAgent:
         self.__process.stdin.write("u\n")
         self.__waitFor("+OK")
         self.log.info("SIP agent " + self.account.to_string() + " unregistered.")
-        time.sleep(0.05) # Let the unregistration settle.
+        time.sleep(0.05) # Let the un-registration settle.
 
     def Register (self):
         self.__process.stdin.write("r\n")
@@ -128,6 +130,7 @@ class SipAgent:
             elif "-ERROR" in line:
                 raise Process_Failure ("Process returned:" + line) 
             elif line == "":
+                self.failed = True
                 raise Process_Failure ("Process returned empty line, which " + \
                                        "indicates an internal failure in the SIP process. " + \
                                        "Inserting delays between Register/Unregister calls remedies it.")

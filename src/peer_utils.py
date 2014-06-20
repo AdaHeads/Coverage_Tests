@@ -17,7 +17,7 @@ class PeerList ():
         :return
         """
         for peer in self.__JSONlist['peers']:
-            if peer_id in peer:
+            if peer['userid'] == peer_id:
                 return peer
         raise NotFoundError()
         
