@@ -21,7 +21,7 @@ class SipAccount():
         self.username  = username
         self.password  = password
         self.server    = server
-        self.sip_port  = str (sip_port)  # This should probably be kept as int, by we really don't need the int further along the way.
+        self.sip_port  = str (sip_port)  # This should probably be kept as int, but we really don't need the int further along the way.
         
     def to_string(self):
         return self.username + "@" + self.server + ":" + self.sip_port
