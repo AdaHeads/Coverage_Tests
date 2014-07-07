@@ -209,7 +209,8 @@ class Test_Case (unittest.TestCase):
         self.Step (Message = "Callee receives hangup on active call...")
 
         self.Log (Message = "Callee agent waits for hangup on active call...")
-        self.Callee.sip_phone.wait_for_hangup ()
+        #self.Callee.sip_phone.wait_for_hangup ()
+        raise NotImplementedError
         self.Log (Message = "Callee agent got a hangup on the active call.")
 
     def Call_Announced (self):
