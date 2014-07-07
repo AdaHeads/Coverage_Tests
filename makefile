@@ -1,4 +1,4 @@
-AUTH_CACHE_STORAGE=/dev/shm/auth/
+AUTH_CACHE_STORAGE=/tmp/tokens
 
 tests: install_dummy_tokens bin/basic_agent src/config.py
 	@py.test --junitxml results.xml src/*tests.py
