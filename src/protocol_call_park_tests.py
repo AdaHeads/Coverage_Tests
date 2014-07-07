@@ -105,7 +105,14 @@ class Park(unittest.TestCase):
             receptionist.call_control.ParkCall (call_id=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_park", call_id=call['id'])
 
-            receptionist.call_control.PickupCall (call_id=call['id'])
+            try:
+                receptionist.call_control.PickupCall (call_id=call['id'])
+            except Server_404:
+                receptionist.event_stack.WaitFor (event_type='call_lock', call_id=call['id'])
+                receptionist.event_stack.WaitFor (event_type='call_unlock', call_id=call['id'])
+                receptionist.call_control.PickupCall (call_id=call['id'])
+
+
             receptionist.event_stack.WaitFor(event_type="call_unpark", call_id=call['id'])
             receptionist.event_stack.WaitFor(event_type="call_pickup", call_id=call['id'])
 

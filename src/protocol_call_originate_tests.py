@@ -60,7 +60,7 @@ class Originate(unittest.TestCase):
 
             receptionist.call_control.Originate_Arbitrary(context=context, extension=extension)
             #TODO Check that the call is picked up or that in any other way confirm that the origination
-            # was indedd a success.
+            # was indeed a success.
 
             receptionist.release()
         except:
@@ -80,8 +80,8 @@ class Originate(unittest.TestCase):
 
             receptionist.call_control.Originate_Arbitrary(context=context, extension=extension)
             #TODO Check that the call is picked up or that in any other way confirm that the origination
-            # was indedd a success.
-            time.sleep(10);
+            # was indeed a success.
+            time.sleep(10)
 
             receptionist.release()
             customer.release()

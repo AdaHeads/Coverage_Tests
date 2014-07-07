@@ -184,6 +184,7 @@ class Transfer(unittest.TestCase):
             customer.release()
             callee.release()
         except:
+
             self.log.error("Event stack: " + pformat (receptionist.event_stack.dump_stack ()))
             receptionist.release()
             customer.release()
