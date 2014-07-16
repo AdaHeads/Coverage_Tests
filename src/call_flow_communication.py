@@ -61,7 +61,7 @@ class callFlowServer:
         headers, body = self.Request(path)
         return headers['status'] == '200'
 
-    def Request(self, path, method="GET", params={}):
+    def Request(self, path, method="GET"):
 
         uri_path = self.uri + path + self.protocol.tokenParam + self.authtoken
 
@@ -72,8 +72,7 @@ class callFlowServer:
             if method == 'POST':
                 headers, body = self.http.request(uri_path, method,
                                                   headers={'Origin': self.uri,
-                                                           'Content-Type': 'application/x-www-form-urlencoded'},
-                                                  body=urlencode(params))
+                                                           'Content-Type': 'application/json'})
             else:
                 headers, body = self.http.request(uri_path, method, headers={'Origin': self.uri})
 
