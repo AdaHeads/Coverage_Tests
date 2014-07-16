@@ -20,90 +20,90 @@ except ImportError:
     import unittest
 
 
-messages = ["I'm selling these fine leather jackets",
-            "Please call me back regarding stuff",
-            "I love the smell of pastry",
-            "Regarding your enlargement",
-            "Nigerian royalties wish to send you money",
-            'Call back soon',
-            'The cheese has started to smell',
-            'Are you paying for that?',
-            'Imagination land called',
-            'Roller coasters purchase',
-            'These are not the droids you are looking for. Come to me for new ones!',
-            'All your base are belong',
-            "I would love to change the world, but they won't give me the source code"]
+messages = [u'I\'m selling these fine leather jackets',
+            u'Please call me back regarding stuff',
+            u'I love the smell of pastry',
+            u'Regarding your enlargement',
+            u'Nigerian royalties wish to send you money',
+            u'Call back soon',
+            u'The cheese has started to smell',
+            u'Are you paying for that?',
+            u'Imagination land called',
+            u'Roller coasters purchase',
+            u'These are not the droids you are looking for. Come to me for new ones!',
+            u'All your base are belong',
+            u'I would love to change the world, but they won\'t give me the source code']
 
-callers  = ["Bob Barker",
-            "Mister Green",
-            "Walter White",
-            "Boy Wonder",
-            "Batman,"
-            "Perry the Platypus",
-            "Ferb Fletcher",
-            "Phineas Flynn",
-            "Candace Flynn",
-            "Dr. Heinz Doofenshmirtz",
-            'Reed Richards (Mr. Fantastic)',
-            'Peter Parker (Spiderman)',
-            'Bruce Banner (the Hulk)',
-            'Matt Murdock (Daredevil)',
-            'Susan Storm (Invisible Girl)',
-            'Scott Summers (Cyclops)',
-            'Stephen Strange (Dr. Strange)',
-            'Darkwing Duck']
+callers  = [u'Bob Barker',
+            u'Mister Green',
+            u'Walter White',
+            u'Boy Wonder',
+            u'Batman',
+            u'Perry the Platypus',
+            u'Ferb Fletcher',
+            u'Phineas Flynn',
+            u'Candace Flynn',
+            u'Dr. Heinz Doofenshmirtz',
+            u'Reed Richards (Mr. Fantastic)',
+            u'Peter Parker (Spiderman)',
+            u'Bruce Banner (the Hulk)',
+            u'Matt Murdock (Daredevil)',
+            u'Susan Storm (Invisible Girl)',
+            u'Scott Summers (Cyclops)',
+            u'Stephen Strange (Dr. Strange)',
+            u'Darkwing Duck']
 
-companies = ['Acme inc',
-             'Wayne Enterprise',
-             'Ghostbusters A/S',
-             'Slamtroldmanden',
-             'Kødbollen A/S',
-             'Blomme\'s Gartneri',
-             'Hummerspecialisten ApS',
-             'Gnaske-Grønt ApS',
-             'Firmanavn_der_fortæller_om_samtlige_produkter_hos_os A/S',
-             'BulgurKompaniget A/S',
-             'Andefødder Aps',
-             'Spirevippen I/S',
-             'Petersen\'s Globale Kobberudvinding',
-             'PingPong ApS',
-             'Kasper\'s Køkken A/S',
-             'Den Varme Radiator ApS',
-             'KludeCentralen ApS',
-             'MobileAdvolaterne A/S',
-             'Bogforlaget A/S',
-             'Revisor Søren ApS',
-             'Kalle\'s Dyrefoder ApS',
-             'Den Varme Radiator ApS',
-             'KludeCentralen ApS',
-             'MobileAdvolaterne A/S',
-             'Bogforlaget A/S',
-             'Revisor Søren ApS',
-             'Kalle\'s Dyrefoder ApS',
-             'Fantasibureauet A/S',
-             'Fem Flade fisk I/S',
-             'Advokatkontoret',
-             'Gave-Ideer ApS',
-             'Det Tredie Firmanavn I/S',
-             'Kraniosakralklinikken ApS',
-             'Hvalbøffer A/S',
-             'De gode ideer ApS',
-             'Super-supporten A/S',
-             'Doozerne A/S',
-             'Sublim Forskning A/S',
-             'Hårtotten ApS',
-             'Alt til katten A/S',
-             'Sjov og Spas',
-             'Humørbomben K/S',
-             'Kurts kartoffelskrællerservice',
-             'Det absolutte nulpunkt',
-             'Den hellige ko-kebab',
-             'Peters pottemageri',
-             'Reklamegas Aps',
-             'Lenes lækre lune lagner I/S',
-             'Grine-Gerts anti-depressiver',
-             'Kasse-kompaniet',
-             'Hårstiverne']
+companies = [u'Acme inc',
+             u'Wayne Enterprise',
+             u'Ghostbusters A/S',
+             u'Slamtroldmanden',
+             u'Kødbollen A/S',
+             u'Blomme\'s Gartneri',
+             u'Hummerspecialisten ApS',
+             u'Gnaske-Grønt ApS',
+             u'Firmanavn_der_fortæller_om_samtlige_produkter_hos_os A/S',
+             u'BulgurKompaniget A/S',
+             u'Andefødder Aps',
+             u'Spirevippen I/S',
+             u'Petersen\'s Globale Kobberudvinding',
+             u'PingPong ApS',
+             u'Kasper\'s Køkken A/S',
+             u'Den Varme Radiator ApS',
+             u'KludeCentralen ApS',
+             u'MobileAdvolaterne A/S',
+             u'Bogforlaget A/S',
+             u'Revisor Søren ApS',
+             u'Kalle\'s Dyrefoder ApS',
+             u'Den Varme Radiator ApS',
+             u'KludeCentralen ApS',
+             u'MobileAdvolaterne A/S',
+             u'Bogforlaget A/S',
+             u'Revisor Søren ApS',
+             u'Kalle\'s Dyrefoder ApS',
+             u'Fantasibureauet A/S',
+             u'Fem Flade fisk I/S',
+             u'Advokatkontoret',
+             u'Gave-Ideer ApS',
+             u'Det Tredie Firmanavn I/S',
+             u'Kraniosakralklinikken ApS',
+             u'Hvalbøffer A/S',
+             u'De gode ideer ApS',
+             u'Super-supporten A/S',
+             u'Doozerne A/S',
+             u'Sublim Forskning A/S',
+             u'Hårtotten ApS',
+             u'Alt til katten A/S',
+             u'Sjov og Spas',
+             u'Humørbomben K/S',
+             u'Kurts kartoffelskrællerservice',
+             u'Det absolutte nulpunkt',
+             u'Den hellige ko-kebab',
+             u'Peters pottemageri',
+             u'Reklamegas Aps',
+             u'Lenes lækre lune lagner I/S',
+             u'Grine-Gerts anti-depressiver',
+             u'Kasse-kompaniet',
+             u'Hårstiverne']
 
 flagsLists = [[],
               ["willCallBack"],
@@ -138,7 +138,8 @@ class Message(unittest.TestCase):
 
     def test_message_send_single (self):
         #TODO: Extract a random contact from the contact server.
-        message = {"to"          : [{
+        message = {"recipients" :{
+                    "to"          : [{
                        "contact"   : {
                            "id"   : 2,
                            "name" : "Kim (AdaHeads)"},
@@ -160,22 +161,35 @@ class Message(unittest.TestCase):
                        "reception" : {
                            "id"   : 2,
                            "name" : "Fredes Fisk"},
-                       }],
-                   #"bcc"         : [],
-                   "message"     : random.choice(messages),
+                       }]},
+                   "bcc"         : [],
+                   "message"     : unicode(random.choice(messages)),
                    "context"     : {
                        "contact"   : {
                            "id"   : 2,
                            "name" : "Kim Rostgaard Christensen"},
                        "reception" : {
                            "id"   : 2,
-                           "name" : random.choice(companies)},
+                           "name" : unicode(random.choice(companies))},
                        },
-                   "caller"       : { 'name'    : random.choice(callers),
-                                      'company' : random.choice(companies)},
+                   "caller"       : { 'name'      : random.choice(callers),
+                                      'company'   : random.choice(companies),
+                                      'phone'     : '',
+                                      'cellphone' : ''},
                    "flags"        : random.choice(flagsLists)}
 
-        self.server.message_send (message)
+        message_id = self.server.message_send (message)['id']
+
+        server_message = self.server.message (message_id)
+
+
+        assert (server_message['recipients']['to'] == message['recipients']['to'])
+        assert (server_message['recipients']['cc'] == message['recipients']['cc'])
+        assert (server_message['message']          == message['message'])
+        assert (server_message['context']          == message['context'])
+        assert (server_message['caller']           == message['caller'])
+        assert (server_message['flags']            == message['flags'])
+
 
     def test_message_not_found(self):
         message_id = -1
