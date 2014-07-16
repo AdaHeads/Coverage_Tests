@@ -112,26 +112,3 @@ class Originate(unittest.TestCase):
         except:
             receptionist.release()
             raise
-
-    def test_origination_to_invalid_phone_id(self):
-        receptionist = Receptionists.request()
-
-        try:
-            context = "2@1"
-            phone_id = "1"
-
-            self.log.info ("Receptionist " + receptionist.username + " dials phone id" + phone_id + \
-                           " in context " + context)
-
-            try:
-                receptionist.call_control.Originate_Specific(context="2@1", phone_id=phone_id)
-            except Server_404:
-                receptionist.release()
-                return
-            #TODO Check that the call is picked up or that in any other way confirm that the origination
-            # was indedd a success.
-
-            self.fail ("Expected 404 on on origination request!")
-        except:
-            receptionist.release()
-            raise
