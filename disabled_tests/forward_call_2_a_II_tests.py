@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-opkald-videre#variant-1aii-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-opkald-videre#variant-2aii-1
 
-import time
-
-from forward_call import Test_Case
+from disabled_tests.forward_call import Test_Case
 
 class Sequence_Diagram (Test_Case):
     def test_Run (self):
         try:
             Incoming_Call_ID = self.Preconditions ()
 
-            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: ring-til-primaert-nummer]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: liste-med-sekundaere-numre]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [pil op/ned - nogle gange]")
+            self.Step (Message = "Receptionist-N     ->> Klient-N          [genvej: ring-markeret-nummer-op]")
             Outgoing_Call_ID = self.Receptionist_Places_Call (Number = self.Callee.extension)
-            self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [ring-op: telefon-N, nummer]")
+            self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [ring-op: nummer, telefon-N]")
             self.Callee_Receives_Call ()
-            self.Step (Message = "FreeSWITCH         ->> FreeSWITCH        [forbind opkald og telefon-N]")
+            self.Step (Message = "FreeSWITCH         ->  FreeSWITCH        [forbind opkald med telefon-N]")
             self.Receptionist_Hears_Dialtone ()
             self.Step (Message = "Callee phone rings.")
             self.Callee_Accepts_Call ()
@@ -30,7 +30,6 @@ class Sequence_Diagram (Test_Case):
             self.Receptionist_Hangs_Up (Call_ID = Outgoing_Call_ID)
             self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [afslut telefon-N's udgaaende samtale]")
             self.Callee_Receives_Hang_Up()
-            self.Receptionist_Waits_For_Hang_Up()
             self.Step (Message = "FreeSWITCH         ->  FreeSWITCH        [forbind opkalder og telefon-N]")
             self.Step (Message = "=== loop ===")
             self.Step (Message = "Receptionist-N     ->> Telefon-N         [snak]")

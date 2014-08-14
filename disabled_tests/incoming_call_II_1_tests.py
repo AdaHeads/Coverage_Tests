@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-i1bii-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-ii1-1
 
-from incoming_calls import Test_Case
+from disabled_tests.incoming_calls import Test_Case
 from config         import queued_reception as Reception
 
 class Sequence_Diagram (Test_Case):
@@ -11,17 +11,17 @@ class Sequence_Diagram (Test_Case):
 
             self.Caller_Places_Call (Number = Reception)
             self.Caller_Hears_Dialtone ()
-            self.Step (Message = "FreeSWITCH: checks dial-plan => to queue")
-            self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
+            self.Step (Message = "FreeSWITCH         ->  FreeSWITCH        [Checks dial-plan.  Result: Queue call.]")
+            self.Step (Message = "FreeSWITCH         ->> Call-Flow-Control [event: call-offer; destination: Reception]")
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
             Call_ID, Reception_ID = self.Call_Announced ()
-            self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
-            self.Step (Message = "Receptionist-N: Busy doing other things (allowing FreeSWITCH to time out).", Delay_In_Seconds = 3.0)
-            self.Step (Message = "FreeSWITCH: pause timed out")
-            self.Step (Message = "FreeSWITCH         ->> Call-Flow-Control: queued-unavailable: <call ID>")
+            self.Step (Message = "Call-Flow-Control  ->  Call-Flow-Control [wait 0.200 s]", Delay_In_Seconds = 0.200)
+            self.Step (Message = "Call-Flow-Control  ->  Call-Flow-Control [no responses to call-offer]")
+            self.Step (Message = "Call-Flow-Control  ->> FreeSWITCH        [force-end-pause: <call_ID>]")
+            self.Step (Message = "FreeSWITCH         ->> Call-Flow-Control [queued-unavailable: <call_ID>]")
             self.Step (Message = "FreeSWITCH         ->> Opkalder          »De har ringet til <reception name>. Vent venligst.«")
             self.Call_Announced_As_Locked (Call_ID = Call_ID)
-            self.Step (Message = "Klient-N           ->  Receptionist-N: Queue: <reception name> (optaget)")
+            self.Step (Message = "Klient-N           ->> Receptionist-N    [Queue: <reception name> (optaget)]")
             self.Step (Message = "FreeSWITCH->Call-Flow-Control: call queued with dial-tone")
             self.Step (Message = "FreeSWITCH->Caller: pause music")
             self.Call_Announced_As_Unlocked (Call_ID = Call_ID)

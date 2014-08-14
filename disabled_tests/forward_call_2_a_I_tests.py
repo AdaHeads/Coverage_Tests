@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-opkald-videre#variant-2ai-1
 
-from forward_call import Test_Case
+from disabled_tests.forward_call import Test_Case
 
 class Sequence_Diagram (Test_Case):
     def test_Run (self):

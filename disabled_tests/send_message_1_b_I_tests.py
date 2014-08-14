@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Sende-en-besked#variant-1bi-1
 
-from send_message import Test_Case
-from config       import queued_reception as Reception
+from disabled_tests.send_message import Test_Case
+
 
 class Sequence_Diagram (Test_Case):
     def test_Run (self):

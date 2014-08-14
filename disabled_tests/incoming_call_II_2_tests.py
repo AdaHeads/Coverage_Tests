@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-ii1-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-ii2-1
 
-from incoming_calls import Test_Case
+from disabled_tests.incoming_calls import Test_Case
 from config         import queued_reception as Reception
 
 class Sequence_Diagram (Test_Case):
@@ -26,7 +26,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH->Caller: pause music")
             self.Call_Announced_As_Unlocked (Call_ID = Call_ID)
             self.Step (Message = "Client-N->Receptionist-N: Queue: <reception name> (venter)")
-            self.Step (Message = "Receptionist-N->Client-N: state-switch-free")
+            self.Step (Message = "Receptionist-N->Client-N: take call")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
             self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Receptionist.call_control,
                                         Call_ID           = Call_ID)

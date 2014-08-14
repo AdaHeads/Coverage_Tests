@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-i2a-1
+# https://github.com/AdaHeads/Hosted-Telephone-Reception-System/wiki/Use-case%3A-Indg%C3%A5ende-opkald#variant-i1bi-1
 
-from incoming_calls import Test_Case
+from disabled_tests.incoming_calls import Test_Case
 from config         import queued_reception as Reception
 
 class Sequence_Diagram (Test_Case):
@@ -16,7 +16,7 @@ class Sequence_Diagram (Test_Case):
             self.Step (Message = "FreeSWITCH: pauses dial-plan processing for # seconds")
             Call_ID, Reception_ID = self.Call_Announced ()
             self.Step (Message = "Client-N->Receptionist-N: shows call (with dial-tone)")
-            self.Step (Message = "Receptionist-N->Client-N: take call")
+            self.Step (Message = "Receptionist-N->Client-N: state-switch-free")
             Reception_Data = self.Request_Information (Reception_ID = Reception_ID)
             self.Offer_To_Pick_Up_Call (Call_Flow_Control = self.Receptionist.call_control,
                                         Call_ID           = Call_ID)
