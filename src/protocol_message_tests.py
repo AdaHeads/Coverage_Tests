@@ -106,6 +106,9 @@ companies = [u'Acme inc',
              u'Hårstiverne']
 
 flagsLists = [[],
+              ["pleaseCall"],
+              ['urgent.','pleaseCall'],
+              ['hasCalled', 'pleaseCall'],
               ["willCallBack"],
               ["urgent"],
               ["urgent","willCallBack"]]
@@ -141,14 +144,14 @@ class Message(unittest.TestCase):
         message = {"recipients" :{
                     "to"          : [{
                        "contact"   : {
-                           "id"   : 2,
+                           "id"   : 4,
                            "name" : "Kim (AdaHeads)"},
                        "reception" : {
                            "id"   : 1,
                            "name" : "AdaHeads K/S"},
                        },{
                        "contact"   : {
-                           "id"   : 2,
+                           "id"   : 4,
                            "name" : "Kim (FF)"},
                        "reception" : {
                            "id"   : 3,
@@ -156,7 +159,7 @@ class Message(unittest.TestCase):
                        }],
                    "cc"          : [{
                        "contact"   : {
-                           "id"   : 2,
+                           "id"   : 4,
                            "name" : "Frede Fiskeglad"},
                        "reception" : {
                            "id"   : 2,
@@ -166,7 +169,7 @@ class Message(unittest.TestCase):
                    "message"     : unicode(random.choice(messages)),
                    "context"     : {
                        "contact"   : {
-                           "id"   : 2,
+                           "id"   : 4,
                            "name" : "Kim Rostgaard Christensen"},
                        "reception" : {
                            "id"   : 2,
@@ -174,8 +177,8 @@ class Message(unittest.TestCase):
                        },
                    "caller"       : { 'name'      : random.choice(callers),
                                       'company'   : random.choice(companies),
-                                      'phone'     : '',
-                                      'cellphone' : ''},
+                                      'phone'     : '88224411',
+                                      'cellphone' : '99331122'},
                    "flags"        : random.choice(flagsLists)}
 
         message_id = self.server.message_send (message)['id']
