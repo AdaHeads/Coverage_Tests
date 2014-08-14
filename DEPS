@@ -6,3 +6,4 @@ From PIP:
   httplib2
   simplejson
   pytest
+  jsonschema
