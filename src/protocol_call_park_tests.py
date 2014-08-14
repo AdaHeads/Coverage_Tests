@@ -2,7 +2,7 @@ __author__ = 'krc'
 
 import config
 import logging
-import time;
+import time
 
 # Exceptions
 from call_flow_communication import Server_404

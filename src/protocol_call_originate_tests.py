@@ -74,7 +74,7 @@ class Originate(unittest.TestCase):
 
         try:
             context = "2@2"
-            extension = "port" + str(customer.sip_port);
+            extension = "port" + str(customer.sip_port)
 
             self.log.info ("Receptionist " + receptionist.username + " dials " + extension + " in context " + context)
 

@@ -64,7 +64,7 @@ class Transfer(unittest.TestCase):
 
             self.assertEquals(originate_event['call']['b_leg'], outbound_call['call']['id'])
 
-            outbound_call = originate_event['call'];
+            outbound_call = originate_event['call']
 
             # Validate that the object matches the expected.
             self.assertEquals(int(reception_id), outbound_call['reception_id'])
@@ -144,7 +144,7 @@ class Transfer(unittest.TestCase):
 
             self.assertEquals(originate_event['call']['b_leg'], outbound_channel['call']['id'])
 
-            outbound_call = originate_event['call'];
+            outbound_call = originate_event['call']
 
             # Validate that the object matches the expected.
             self.assertEquals(int(reception_id), outbound_call['reception_id'])

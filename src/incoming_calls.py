@@ -76,7 +76,7 @@ class Test_Case (unittest.TestCase):
 
         logging.info ("Step " + str (self.Next_Step) + ": " + Message)
         sleep (Delay_In_Seconds)
-        self.Next_Step = self.Next_Step + 1
+        self.Next_Step += 1
 
     def Log (self,
              Message,

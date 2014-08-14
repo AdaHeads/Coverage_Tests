@@ -72,16 +72,16 @@ class Test_Case (unittest.TestCase):
 
         if not self.Caller is None:
             self.Caller.release ()
-            self.Caller = None;
+            self.Caller = None
         if not self.Receptionist is None:
             self.Receptionist.release ()
-            self.Receptionist = None;
+            self.Receptionist = None
         if not self.Receptionist_2 is None:
             self.Receptionist_2.release ()
-            self.Receptionist_2 = None;
+            self.Receptionist_2 = None
         if not self.Callee is None:
             self.Callee.release ()
-            self.Callee = None;
+            self.Callee = None
 
         self.Step ("Forward call test case: Done cleaning up after test.")
 
@@ -95,7 +95,7 @@ class Test_Case (unittest.TestCase):
 
         logging.info ("Step " + str (self.Next_Step) + ": " + Message)
         sleep (Delay_In_Seconds)
-        self.Next_Step = self.Next_Step + 1
+        self.Next_Step += 1
 
     def Log (self,
              Message,
@@ -210,8 +210,8 @@ class Test_Case (unittest.TestCase):
 
         self.Log (Message = "Callee agent waits for hangup on active call...")
         #self.Callee.sip_phone.wait_for_hangup ()
-        raise NotImplementedError
         self.Log (Message = "Callee agent got a hangup on the active call.")
+        raise NotImplementedError
 
     def Call_Announced (self):
         self.Step (Message = "Receptionist's client waits for 'call_offer'...")

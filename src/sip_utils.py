@@ -56,6 +56,7 @@ class SipAgent:
                                        stdin=PIPE,
                                        stdout=PIPE)
             except:
+                
                 self.log.fatal("Process spawning failed, check path! ")
                 raise Process_Failure (self.binaryPath)
 
@@ -114,7 +115,7 @@ class SipAgent:
 
     def QuitProcess(self):
         self.HangupAllCalls()
-        self.__process.stdin.write("q\n"); # Quit
+        self.__process.stdin.write("q\n") # Quit
         self.__waitFor("+OK")
         try:
             self.__process.wait()
